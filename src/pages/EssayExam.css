@@ -1,0 +1,130 @@
+.essay-layout {
+    min-height: 100vh;
+    padding: 1.5rem;
+    background: var(--color-bg-base);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.essay-main {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-xl {
+    font-size: 1.25rem;
+    line-height: 1.6;
+}
+
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.mt-8 {
+    margin-top: 2rem;
+}
+
+.pt-4 {
+    padding-top: 1rem;
+}
+
+.border-t {
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .border-t {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.w-full {
+    width: 100%;
+}
+
+.essay-textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: var(--color-bg-base);
+    color: var(--color-text-main);
+    font-family: var(--font-family-body);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+[data-theme='dark'] .essay-textarea {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.essay-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.essay-textarea:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.score-badge {
+    padding: 0.4rem 1rem;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.keywords-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 600px) {
+    .keywords-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag {
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.tag-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.tag-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+.text-success {
+    color: var(--color-success);
+}
