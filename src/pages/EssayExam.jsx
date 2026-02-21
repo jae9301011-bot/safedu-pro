@@ -9,7 +9,7 @@ const MOCK_SCENARIO = {
     question: '건설현장에서 시스템 비계 조립 시 준수해야 할 기준 및 안전 조치 사항 5가지를 설명하시오.',
     keywords: ['수직재', '수평재', '가새재', '밑받침철물', '벽이음', '침하 방지', '하중 한도', '작업발판'],
     officialStandard: '산업안전보건기준에 관한 규칙 제69조 (시스템 비계의 구조) 등 관련 조항',
-    officialStandardDate: '[시행 2023. 11. 14.] 고용노동부령 제398호'
+    officialStandardDate: '[시행 2025. 1. 1.] 고용노동부령 제410호 (최신 개정 반영)'
 };
 
 export default function EssayExam() {
