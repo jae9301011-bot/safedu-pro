@@ -8,14 +8,18 @@ const INTERVIEW_QUESTIONS = [
         id: 1,
         text: "건설현장에서 타워크레인 설치 및 해체 작업 시 발생할 수 있는 주요 재해 유형과 예방 대책(안전보건규칙)을 설명해 보세요.",
         keywords: ['붕괴', '추락', '낙하', '작업계획서', '신호수', '풍속', '작업지휘자'],
-        officialStandard: '산업안전보건기준에 관한 규칙 제142조 (타워크레인의 작업제한) 등 조항 기준',
+        officialStandard: `제142조(타워크레인의 작업제한) 사업주는 타워크레인을 설치·수리·점검 또는 해체하는 작업을 하는 경우에 순간풍속이 초당 10미터를 초과하는 경우에는 그 작업을 중지하여야 한다.
+제38조(사전조사 및 작업계획서의 작성 등) 제1항제11호 근로자의 추락위험, 소형장비의 낙하위험, 작업반경 내 근로자 충돌위험을 예방하기 위한 안전조치 계획서 작성.`,
         officialStandardDate: '[시행 2025. 7. 1.] 고용노동부령 최신 개정안 적용'
     },
     {
         id: 2,
         text: "거푸집 동바리 조립 시 발생할 수 있는 붕괴 사고의 주요 원인과 이를 예방하기 위한 안전 조치 기준을 3가지 이상 제시해 주세요.",
         keywords: ['조립도', '구조검토', '수평연결재', '가새', '지반 침하', '깔판', '콘크리트 타설', '편심'],
-        officialStandard: '산업안전보건기준에 관한 규칙 제332조 (거푸집동바리등의 안전조치)',
+        officialStandard: `제332조(거푸집동바리등의 안전조치) ① 사업주는 거푸집동바리등을 조립하는 경우에는 그 구조를 검토한 후 조립도를 작성하고, 그 조립도에 따라 조립하도록 하여야 한다.
+② 사업주는 동바리로 사용하는 파이프 서포트, 강관, 통나무 등의 지주(이하 "동바리"라 한다)에 대하여는 다음 각 호의 사항을 준수하여야 한다.
+1. 지반의 침하를 방지하기 위하여 깔판·깔목 등을 사용하거나 콘크리트를 타설하는 등의 조치를 할 것
+2. 동바리의 상하 고정 및 미끄러짐 방지 조치를 하고, 붕괴의 위험이 없도록 할 것`,
         officialStandardDate: '[시행 2025. 7. 1.] 고용노동부령 기준'
     }
 ];
@@ -224,8 +228,8 @@ export default function InterviewPrep() {
 
                         <div className="official-standard mt-6 bg-mute p-4 rounded border-l-4">
                             <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령)</h4>
-                            <p className="text-sm font-bold">{question.officialStandard}</p>
-                            <p className="text-xs text-danger font-bold mt-1">※ 기준 법령: {question.officialStandardDate}</p>
+                            <p className="text-sm font-bold whitespace-pre-wrap">{question.officialStandard}</p>
+                            <p className="text-xs text-danger font-bold mt-2">※ 기준 법령: {question.officialStandardDate}</p>
                         </div>
 
                         <p className="mt-6 text-sm text-muted bg-mute p-3 rounded">
