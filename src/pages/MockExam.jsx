@@ -131,7 +131,7 @@ export default function MockExam() {
                             <div className="explanation">
                                 <h4>📝 해설 및 최신 2025 법령 업데이트</h4>
                                 <p>도급인은 안전보건에 관한 필수 비용을 지원해야 하나, 관계수급인 근로자의 '일반 건강진단 비용' 자체를 법적으로 직접 부담할 의무는 없습니다 (산업안전보건법 제62조 참조).</p>
-                                <p className="highlight">※ 2025 개정 알림: 50인 미만 사업장 유해위험방지계획서 제출 대상이 일부 확대되었습니다.</p>
+                                <p className="highlight">※ 2025년 12월 1일 개정 알림: 50인 미만 사업장 유해위험방지계획서 제출 대상이 일부 확대되었습니다.</p>
                             </div>
 
                             <div className="smart-filter-pad">
