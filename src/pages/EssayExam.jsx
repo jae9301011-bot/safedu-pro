@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit3, CheckCircle, AlertTriangle } from 'lucide-react';
 import './EssayExam.css';
@@ -27,12 +27,39 @@ const MOCK_SCENARIOS = [
 export default function EssayExam() {
     const navigate = useNavigate();
     const [currentQIndex, setCurrentQIndex] = useState(0);
+    const [customQuestions, setCustomQuestions] = useState([]);
     const [answer, setAnswer] = useState('');
     const [isGraded, setIsGraded] = useState(false);
     const [feedback, setFeedback] = useState(null);
 
-    const scenario = MOCK_SCENARIOS[currentQIndex];
-    const isLast = currentQIndex === MOCK_SCENARIOS.length - 1;
+    useEffect(() => {
+        const user = localStorage.getItem('currentUser') || 'default';
+        const storedCustomMaterial = localStorage.getItem(`${user}_customEssayMaterial`);
+        if (storedCustomMaterial) {
+            try {
+                const parsed = JSON.parse(storedCustomMaterial);
+                const adapted = parsed.map((item, index) => ({
+                    id: `custom_essay_${index}`,
+                    subject: item.subject || '사용자 커스텀 논술',
+                    frequency: item.frequency || '직접 업로드 문제',
+                    question: item.question || item.text || '내용 없음',
+                    keywords: item.keywords ? (Array.isArray(item.keywords) ? item.keywords : item.keywords.split(',').map(k => k.trim())) : [],
+                    officialStandard: item.officialStandard || '내부 채점 기준',
+                    officialStandardDate: item.officialStandardDate || '해당없음',
+                    isCustom: true
+                }));
+                setCustomQuestions(adapted);
+            } catch (e) {
+                console.error("Error parsing custom essay materials", e);
+            }
+        }
+    }, []);
+
+    const allQuestions = [...MOCK_SCENARIOS, ...customQuestions];
+    const scenario = allQuestions[currentQIndex];
+    if (!scenario) return null; // safety check
+
+    const isLast = currentQIndex === allQuestions.length - 1;
 
     const handleGrade = (submittedAnswer = answer) => {
         // Simple mock logic for AI keyword matching
@@ -84,7 +111,7 @@ export default function EssayExam() {
             <main className="essay-main">
                 <div className="scenario-panel glass-panel mb-4">
                     <div className="flex justify-between items-center mb-4">
-                        <span className="badge warning">{scenario.subject} (문제 {currentQIndex + 1}/{MOCK_SCENARIOS.length})</span>
+                        <span className={`badge ${scenario.isCustom ? 'success' : 'warning'}`}>{scenario.subject} (문제 {currentQIndex + 1}/{allQuestions.length}) {scenario.isCustom && '⭐ 신규 업로드'}</span>
                         <span className="text-danger font-bold flex items-center gap-2"><AlertTriangle size={18} /> {scenario.frequency}</span>
                     </div>
                     <h3 className="text-xl mb-2">{scenario.question}</h3>

@@ -23,13 +23,39 @@ const INTERVIEW_QUESTIONS = [
 export default function InterviewPrep() {
     const navigate = useNavigate();
     const [currentQIndex, setCurrentQIndex] = useState(0);
+    const [customQuestions, setCustomQuestions] = useState([]);
     const [isRecording, setIsRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [feedback, setFeedback] = useState(null);
 
     const recognitionRef = useRef(null);
-    const question = INTERVIEW_QUESTIONS[currentQIndex];
-    const isLast = currentQIndex === INTERVIEW_QUESTIONS.length - 1;
+
+    useEffect(() => {
+        const user = localStorage.getItem('currentUser') || 'default';
+        const storedCustomMaterial = localStorage.getItem(`${user}_customInterviewMaterial`);
+        if (storedCustomMaterial) {
+            try {
+                const parsed = JSON.parse(storedCustomMaterial);
+                const adapted = parsed.map((item, index) => ({
+                    id: `custom_int_${index}`,
+                    text: item.question || item.text || '내용 없음',
+                    keywords: item.keywords ? (Array.isArray(item.keywords) ? item.keywords : item.keywords.split(',').map(k => k.trim())) : [],
+                    officialStandard: item.officialStandard || '내부 채점 기준',
+                    officialStandardDate: item.officialStandardDate || '해당없음',
+                    isCustom: true
+                }));
+                setCustomQuestions(adapted);
+            } catch (e) {
+                console.error("Error parsing custom interview materials", e);
+            }
+        }
+    }, []);
+
+    const allQuestions = [...INTERVIEW_QUESTIONS, ...customQuestions];
+    const question = allQuestions[currentQIndex];
+    if (!question) return null; // safety check
+
+    const isLast = currentQIndex === allQuestions.length - 1;
 
     useEffect(() => {
         // Initialize Web Speech API if supported
@@ -134,7 +160,7 @@ export default function InterviewPrep() {
                         <Volume2 size={48} className={isRecording ? 'pulse' : ''} />
                     </div>
                     <div className="avatar-speech">
-                        <span className="badge warning mb-2 inline-block">질문 {currentQIndex + 1}/{INTERVIEW_QUESTIONS.length}</span>
+                        <span className={`badge ${question.isCustom ? 'success' : 'warning'} mb-2 inline-block`}>질문 {currentQIndex + 1}/{allQuestions.length} {question.isCustom && '⭐ 신규 업로드'}</span>
                         <h3>Q. {question.text}</h3>
                         <button className="btn-small mt-2" onClick={() => { }}><Volume2 size={16} /> 질문 다시 듣기</button>
                     </div>

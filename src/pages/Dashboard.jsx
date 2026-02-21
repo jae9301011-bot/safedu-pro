@@ -87,19 +87,46 @@ export default function Dashboard() {
                 }
 
                 if (parsedData.length > 0) {
-                    // Store custom data in localStorage to be accessed by MockExam / StudyNote
                     const user = localStorage.getItem('currentUser') || 'default';
-                    let existingCustom = [];
-                    try {
-                        const stored = localStorage.getItem(`${user}_customLearningMaterial`);
-                        if (stored) existingCustom = JSON.parse(stored);
-                    } catch (e) { }
+                    let cbtData = [];
+                    let essayData = [];
+                    let interviewData = [];
 
-                    const newData = [...existingCustom, ...parsedData];
-                    localStorage.setItem(`${user}_customLearningMaterial`, JSON.stringify(newData));
-                    setUploadStatus({ type: 'success', message: `성공! ${parsedData.length}개의 항목이 추가되었습니다.` });
+                    parsedData.forEach(item => {
+                        if (item.type === 'essay') {
+                            essayData.push(item);
+                        } else if (item.type === 'interview') {
+                            interviewData.push(item);
+                        } else {
+                            // Default to CBT
+                            cbtData.push(item);
+                        }
+                    });
 
-                    setTimeout(() => setUploadStatus(null), 3000); // Clear after 3 seconds
+                    // Utility to append to local storage array
+                    const appendToStorage = (key, newData) => {
+                        if (newData.length === 0) return;
+                        let existing = [];
+                        try {
+                            const stored = localStorage.getItem(`${user}_${key}`);
+                            if (stored) existing = JSON.parse(stored);
+                        } catch (e) { }
+                        localStorage.setItem(`${user}_${key}`, JSON.stringify([...existing, ...newData]));
+                    };
+
+                    appendToStorage('customLearningMaterial', cbtData);
+                    appendToStorage('customEssayMaterial', essayData);
+                    appendToStorage('customInterviewMaterial', interviewData);
+
+                    const breakdownStr = [
+                        cbtData.length > 0 ? `객관식 ${cbtData.length}건` : '',
+                        essayData.length > 0 ? `논술 ${essayData.length}건` : '',
+                        interviewData.length > 0 ? `면접 ${interviewData.length}건` : ''
+                    ].filter(Boolean).join(', ');
+
+                    setUploadStatus({ type: 'success', message: `성공! 총 ${parsedData.length}개의 항목이 추가되었습니다. (${breakdownStr})` });
+
+                    setTimeout(() => setUploadStatus(null), 4000); // Clear after 4 seconds
                 } else {
                     throw new Error("데이터가 비어있습니다.");
                 }
