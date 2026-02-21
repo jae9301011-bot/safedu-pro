@@ -10,17 +10,26 @@ const INTERVIEW_QUESTIONS = [
         keywords: ['붕괴', '추락', '낙하', '작업계획서', '신호수', '풍속', '작업지휘자'],
         officialStandard: '산업안전보건기준에 관한 규칙 제142조 (타워크레인의 작업제한) 등 조항 기준',
         officialStandardDate: '[시행 2025. 7. 1.] 고용노동부령 최신 개정안 적용'
+    },
+    {
+        id: 2,
+        text: "거푸집 동바리 조립 시 발생할 수 있는 붕괴 사고의 주요 원인과 이를 예방하기 위한 안전 조치 기준을 3가지 이상 제시해 주세요.",
+        keywords: ['조립도', '구조검토', '수평연결재', '가새', '지반 침하', '깔판', '콘크리트 타설', '편심'],
+        officialStandard: '산업안전보건기준에 관한 규칙 제332조 (거푸집동바리등의 안전조치)',
+        officialStandardDate: '[시행 2025. 7. 1.] 고용노동부령 기준'
     }
 ];
 
 export default function InterviewPrep() {
     const navigate = useNavigate();
+    const [currentQIndex, setCurrentQIndex] = useState(0);
     const [isRecording, setIsRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [feedback, setFeedback] = useState(null);
 
     const recognitionRef = useRef(null);
-    const question = INTERVIEW_QUESTIONS[0]; // mock first question
+    const question = INTERVIEW_QUESTIONS[currentQIndex];
+    const isLast = currentQIndex === INTERVIEW_QUESTIONS.length - 1;
 
     useEffect(() => {
         // Initialize Web Speech API if supported
@@ -86,16 +95,28 @@ export default function InterviewPrep() {
         }
     };
 
-    const analyzeAudio = () => {
+    const analyzeAudio = (forcedTranscript) => {
+        const textToAnalyze = forcedTranscript !== undefined ? forcedTranscript : transcript;
         // Mock analysis of transcript against keywords
-        const foundKw = question.keywords.filter(kw => transcript.includes(kw));
+        const foundKw = question.keywords.filter(kw => textToAnalyze.includes(kw));
         const coverage = Math.round((foundKw.length / question.keywords.length) * 100);
 
         setFeedback({
             coverage,
             found: foundKw,
-            missing: question.keywords.filter(kw => !transcript.includes(kw))
+            missing: question.keywords.filter(kw => !textToAnalyze.includes(kw))
         });
+    };
+
+    const handleNext = () => {
+        if (!isLast) {
+            setCurrentQIndex(prev => prev + 1);
+            setTranscript('');
+            setFeedback(null);
+        } else {
+            alert('모든 면접 질문을 완료했습니다! 대시보드로 이동합니다.');
+            navigate('/dashboard');
+        }
     };
 
     return (
@@ -113,8 +134,9 @@ export default function InterviewPrep() {
                         <Volume2 size={48} className={isRecording ? 'pulse' : ''} />
                     </div>
                     <div className="avatar-speech">
+                        <span className="badge warning mb-2 inline-block">질문 {currentQIndex + 1}/{INTERVIEW_QUESTIONS.length}</span>
                         <h3>Q. {question.text}</h3>
-                        <button className="btn-small mt-2"><Volume2 size={16} /> 질문 다시 듣기</button>
+                        <button className="btn-small mt-2" onClick={() => { }}><Volume2 size={16} /> 질문 다시 듣기</button>
                     </div>
                 </div>
 
@@ -126,12 +148,19 @@ export default function InterviewPrep() {
                                 {isRecording ? '답변을 듣고 있습니다...' : '마이크 대기 중'}
                             </h4>
                         </div>
-                        <button
-                            className={`btn-record ${isRecording ? 'recording' : ''}`}
-                            onClick={toggleRecording}
-                        >
-                            {isRecording ? <><Square size={20} /> 답변 완료</> : <><Mic size={20} /> 답변 시작하기</>}
-                        </button>
+                        <div className="flex gap-2">
+                            {!isRecording && !feedback && (
+                                <button className="btn-small text-muted outline" onClick={() => analyzeAudio('')}>
+                                    모르겠습니다 (답변 포기)
+                                </button>
+                            )}
+                            <button
+                                className={`btn-record ${isRecording ? 'recording' : ''}`}
+                                onClick={toggleRecording}
+                            >
+                                {isRecording ? <><Square size={20} /> 답변 완료</> : <><Mic size={20} /> 답변 시작하기</>}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="transcript-box">
@@ -171,16 +200,16 @@ export default function InterviewPrep() {
                             <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령)</h4>
                             <p className="text-sm font-bold">{question.officialStandard}</p>
                             <p className="text-xs text-danger font-bold mt-1">※ 기준 법령: {question.officialStandardDate}</p>
-                            <ul className="text-sm text-muted mt-2 list-disc pl-5">
-                                <li>순간풍속이 초당 10미터를 초과하는 경우 타워크레인의 설치·수리·점검 또는 해체 작업을 중지할 것</li>
-                                <li>조립·해체 시 근로자의 추락위험을 방지하기 위하여 작업계획서를 작성하고 준수할 것</li>
-                                <li>작업지휘자를 지정하여 작업지휘자의 직접 지휘 하에 해당 작업을 실시할 것</li>
-                            </ul>
                         </div>
 
                         <p className="mt-6 text-sm text-muted bg-mute p-3 rounded">
-                            ※ 건설 면접에서는 명확한 재해 유형(붕괴, 추락, 낙하 등)과 법적 관리 감독 절차(사전조사, 작업계획서 작성, 풍속 기준 준수 등)를 연관 지어 답변하는 것이 중요합니다.
+                            ※ 건설 면접에서는 명확한 재해 유형과 법적 관리 감독 절차를 연관 지어 답변하는 것이 중요합니다.
                         </p>
+
+                        <div className="flex gap-2 mt-6">
+                            <button className="btn-secondary flex-1" onClick={() => { setFeedback(null); setTranscript(''); }}>다시 답변하기</button>
+                            <button className="btn-primary flex-1" onClick={handleNext}>{isLast ? '결과 완료' : '다음 질문으로 넘어가기'}</button>
+                        </div>
                     </div>
                 )}
             </main>

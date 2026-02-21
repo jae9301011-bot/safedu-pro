@@ -3,25 +3,41 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit3, CheckCircle, AlertTriangle } from 'lucide-react';
 import './EssayExam.css';
 
-const MOCK_SCENARIO = {
-    subject: '건설안전 전공필수',
-    frequency: '14회 중 11회 출제 (매우 중요)',
-    question: '건설현장에서 시스템 비계 조립 시 준수해야 할 기준 및 안전 조치 사항 5가지를 설명하시오.',
-    keywords: ['수직재', '수평재', '가새재', '밑받침철물', '벽이음', '침하 방지', '하중 한도', '작업발판'],
-    officialStandard: '산업안전보건기준에 관한 규칙 제69조 (시스템 비계의 구조) 등 관련 조항',
-    officialStandardDate: '[시행 2025. 1. 1.] 고용노동부령 제410호 (최신 개정 반영)'
-};
+const MOCK_SCENARIOS = [
+    {
+        id: 1,
+        subject: '건설안전 전공필수',
+        frequency: '14회 중 11회 출제 (매우 중요)',
+        question: '건설현장에서 시스템 비계 조립 시 준수해야 할 기준 및 안전 조치 사항 5가지를 설명하시오.',
+        keywords: ['수직재', '수평재', '가새재', '밑받침철물', '벽이음', '침하 방지', '하중 한도', '작업발판'],
+        officialStandard: '산업안전보건기준에 관한 규칙 제69조 (시스템 비계의 구조) 등 관련 조항',
+        officialStandardDate: '[시행 2025. 1. 1.] 고용노동부령 제410호 (최신 개정 반영)'
+    },
+    {
+        id: 2,
+        subject: '건설안전 전공필수',
+        frequency: '14회 중 8회 출제 (중요)',
+        question: '굴착기(백호)를 사용한 굴착 작업 시 발생할 수 있는 주요 재해유형 3가지와 안전대책을 설명하시오.',
+        keywords: ['협착', '충돌', '전도', '작업계획서', '신호수', '유도자', '백미러', '전조등', '승차석 외 탑승금지', '버킷', '지반침하'],
+        officialStandard: '산업안전보건기준에 관한 규칙 제200조 (접촉 방지) 등 굴착기계 관련 규정',
+        officialStandardDate: '[시행 2025. 1. 1.] 고용노동부령 제410호'
+    }
+];
 
 export default function EssayExam() {
     const navigate = useNavigate();
+    const [currentQIndex, setCurrentQIndex] = useState(0);
     const [answer, setAnswer] = useState('');
     const [isGraded, setIsGraded] = useState(false);
     const [feedback, setFeedback] = useState(null);
 
-    const handleGrade = () => {
+    const scenario = MOCK_SCENARIOS[currentQIndex];
+    const isLast = currentQIndex === MOCK_SCENARIOS.length - 1;
+
+    const handleGrade = (submittedAnswer = answer) => {
         // Simple mock logic for AI keyword matching
-        const foundKeywords = MOCK_SCENARIO.keywords.filter(kw => answer.includes(kw));
-        const coverage = (foundKeywords.length / MOCK_SCENARIO.keywords.length) * 100;
+        const foundKeywords = scenario.keywords.filter(kw => submittedAnswer.includes(kw));
+        const coverage = (foundKeywords.length / scenario.keywords.length) * 100;
 
         let score = 'Needs Work';
         let color = 'var(--color-danger)';
@@ -35,12 +51,24 @@ export default function EssayExam() {
 
         setFeedback({
             found: foundKeywords,
-            missing: MOCK_SCENARIO.keywords.filter(kw => !answer.includes(kw)),
+            missing: scenario.keywords.filter(kw => !submittedAnswer.includes(kw)),
             score,
             color,
             coverage: Math.round(coverage)
         });
         setIsGraded(true);
+    };
+
+    const handleNext = () => {
+        if (!isLast) {
+            setCurrentQIndex(prev => prev + 1);
+            setAnswer('');
+            setIsGraded(false);
+            setFeedback(null);
+        } else {
+            alert('모든 모의고사를 완료했습니다! 대시보드로 이동합니다.');
+            navigate('/dashboard');
+        }
     };
 
     return (
@@ -56,10 +84,10 @@ export default function EssayExam() {
             <main className="essay-main">
                 <div className="scenario-panel glass-panel mb-4">
                     <div className="flex justify-between items-center mb-4">
-                        <span className="badge warning">{MOCK_SCENARIO.subject}</span>
-                        <span className="text-danger font-bold flex items-center gap-2"><AlertTriangle size={18} /> {MOCK_SCENARIO.frequency}</span>
+                        <span className="badge warning">{scenario.subject} (문제 {currentQIndex + 1}/{MOCK_SCENARIOS.length})</span>
+                        <span className="text-danger font-bold flex items-center gap-2"><AlertTriangle size={18} /> {scenario.frequency}</span>
                     </div>
-                    <h3 className="text-xl mb-2">{MOCK_SCENARIO.question}</h3>
+                    <h3 className="text-xl mb-2">{scenario.question}</h3>
                     <p className="text-muted text-sm">💡 답안에 핵심 법적 근거 및 필수 키워드가 포함되어야 고득점이 가능합니다.</p>
                 </div>
 
@@ -74,8 +102,9 @@ export default function EssayExam() {
                     ></textarea>
 
                     {!isGraded && (
-                        <div className="flex justify-end mt-4">
-                            <button className="btn-primary" onClick={handleGrade}>AI 자가 채점 및 키워드 분석</button>
+                        <div className="flex justify-between items-center mt-4">
+                            <button className="btn-small text-muted outline" onClick={() => handleGrade('')}>모르겠습니다 (오답 제출)</button>
+                            <button className="btn-primary" onClick={() => handleGrade(answer)}>AI 자가 채점 및 키워드 분석</button>
                         </div>
                     )}
                 </div>
@@ -113,16 +142,14 @@ export default function EssayExam() {
 
                             <div className="official-standard bg-mute p-4 rounded border-l-4">
                                 <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령)</h4>
-                                <p className="text-sm font-bold">{MOCK_SCENARIO.officialStandard}</p>
-                                <p className="text-xs text-danger font-bold mt-1">※ 기준 법령: {MOCK_SCENARIO.officialStandardDate}</p>
-                                <ul className="text-sm text-muted mt-2 list-disc pl-5">
-                                    <li>수직재·수평재 및 가새재를 견고하게 연결하는 구조가 되도록 할 것</li>
-                                    <li>비계 밑단의 수직재와 받침철물은 밀착되도록 설치하고, 수직재와 받침철물의 연결부의 겹침길이는 전체길이의 3분의 1 이상이 되도록 할 것</li>
-                                    <li>벽이음재를 설치하는 경우 수직재와 수평재의 교차부에서 견고하게 설치할 것</li>
-                                </ul>
+                                <p className="text-sm font-bold">{scenario.officialStandard}</p>
+                                <p className="text-xs text-danger font-bold mt-1">※ 기준 법령: {scenario.officialStandardDate}</p>
                             </div>
 
-                            <button className="btn-secondary mt-4 w-full" onClick={() => { setIsGraded(false); setFeedback(null); }}>답안 수정하기</button>
+                            <div className="flex gap-2 mt-4">
+                                <button className="btn-secondary flex-1" onClick={() => { setIsGraded(false); setFeedback(null); }}>답안 수정하기</button>
+                                <button className="btn-primary flex-1" onClick={handleNext}>{isLast ? '결과 완료' : '다음 문제로 넘어갈래요'}</button>
+                            </div>
                         </div>
                     </div>
                 )}
