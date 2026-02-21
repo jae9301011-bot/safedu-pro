@@ -1,189 +1,84 @@
 import json
 import random
 
-# Real industrial safety facts (산업안전보건기준에 관한 규칙 등)
+# Real industrial safety facts (산업안전보건기준에 관한 규칙 등) - DIVERSIFIED
 facts = [
-    {
-        "subject": "안전보건기준",
-        "fact": "사다리식 통로의 기울기",
-        "correct": "75도 이하로 할 것",
-        "wrong": ["85도 이하로 할 것", "60도 이하로 할 것", "90도 이하로 할 것"],
-        "article": "제24조(사다리식 통로 등의 구조)"
-    },
-    {
-        "subject": "기계안전",
-        "fact": "달기 와이어로프 및 달기 강선의 안전계수",
-        "correct": "10 이상",
-        "wrong": ["5 이상", "4 이상", "8 이상"],
-        "article": "제163조(와이어로프 등 달기구의 안전계수)"
-    },
-    {
-        "subject": "기계안전",
-        "fact": "화물운반용 또는 승강기용 와이어로프의 안전계수",
-        "correct": "5 이상",
-        "wrong": ["10 이상", "3 이상", "7 이상"],
-        "article": "제163조(와이어로프 등 달기구의 안전계수)"
-    },
-    {
-        "subject": "건설안전",
-        "fact": "추락방호망 설치 시 망의 처짐",
-        "correct": "짧은 변 길이의 12퍼센트 이상",
-        "wrong": ["짧은 변 길이의 5퍼센트 이상", "짧은 변 길이의 20퍼센트 이상", "긴 변 길이의 10퍼센트 이상"],
-        "article": "제42조(추락의 방지)"
-    },
-    {
-        "subject": "건설안전",
-        "fact": "안전난간 발끝막이판의 설치 높이",
-        "correct": "바닥면등으로부터 10센티미터 이상",
-        "wrong": ["바닥면등으로부터 5센티미터 이상", "바닥면등으로부터 20센티미터 이상", "바닥면등으로부터 15센티미터 이상"],
-        "article": "제13조(안전난간의 구조 및 설치요건)"
-    },
-    {
-        "subject": "건설안전",
-        "fact": "강관비계 기둥의 간격 (띠장 방향)",
-        "correct": "1.5미터 이상 1.8미터 이하",
-        "wrong": ["2.0미터 이상 2.5미터 이하", "1.0미터 이상 1.5미터 이하", "1.8미터 이상 2.0미터 이하"],
-        "article": "제60조(강관비계의 구조)"
-    },
-    {
-        "subject": "보건안전",
-        "fact": "작업장의 조도 기준 (초정밀작업)",
-        "correct": "750럭스 이상",
-        "wrong": ["300럭스 이상", "150럭스 이상", "1000럭스 이상"],
-        "article": "제8조(조도)"
-    },
-    {
-        "subject": "보건안전",
-        "fact": "밀폐공간 적정공기 기준 (산소농도)",
-        "correct": "18퍼센트 이상 23.5퍼센트 미만",
-        "wrong": ["15퍼센트 이상 20퍼센트 미만", "20퍼센트 이상 25퍼센트 미만", "16퍼센트 이상 22퍼센트 미만"],
-        "article": "제618조(정의)"
-    },
-    {
-        "subject": "보건안전",
-        "fact": "밀폐공간 적정공기 기준 (황화수소 농도)",
-        "correct": "10ppm 미만",
-        "wrong": ["50ppm 미만", "100ppm 미만", "5ppm 미만"],
-        "article": "제618조(정의)"
-    },
-    {
-        "subject": "건설안전",
-        "fact": "타워크레인 설치·수리·점검 또는 해체 작업 중지 풍속",
-        "correct": "순간풍속이 초당 10미터를 초과하는 경우",
-        "wrong": ["순간풍속이 초당 15미터를 초과하는 경우", "순간풍속이 초당 30미터를 초과하는 경우", "순간풍속이 초당 5미터를 초과하는 경우"],
-        "article": "제37조(악천후 및 강풍 시의 작업 중지)"
-    },
-    {
-        "subject": "건설안전",
-        "fact": "타워크레인 운전 작업 중지 풍속",
-        "correct": "순간풍속이 초당 15미터를 초과하는 경우",
-        "wrong": ["순간풍속이 초당 10미터를 초과하는 경우", "순간풍속이 초당 20미터를 초과하는 경우", "순간풍속이 초당 33미터를 초과하는 경우"],
-        "article": "제37조(악천후 및 강풍 시의 작업 중지)"
-    },
-    {
-        "subject": "산업안전법령",
-        "fact": "안전보건관리책임자 선임 보고 기한",
-        "correct": "선임 사유 발생일로부터 14일 이내",
-        "wrong": ["선임 사유 발생일로부터 7일 이내", "선임 사유 발생일로부터 30일 이내", "선임 사유 발생일로부터 60일 이내"],
-        "article": "산업안전보건법 시행규칙 제9조"
-    },
-    {
-        "subject": "산업안전법령",
-        "fact": "안전관리자 정기교육 이수 주기",
-        "correct": "신규교육 이수 후 매 2년이 되는 해",
-        "wrong": ["신규교육 이수 후 매 1년이 되는 해", "신규교육 이수 후 매 3년이 되는 해", "신규교육 이수 후 매 5년이 되는 해"],
-        "article": "산업안전보건법 시행규칙 제29조"
-    },
-    {
-        "subject": "기계안전",
-        "fact": "보일러의 폭발사고 예방을 위해 설치해야 하는 방호장치",
-        "correct": "압력방출장치",
-        "wrong": ["과부하방지장치", "권과방지장치", "역화방지기"],
-        "article": "제116조(압력방출장치의 설치)"
-    },
-    {
-        "subject": "기계안전",
-        "fact": "프레스 등의 방호장치 중 광전자식 방호장치의 원리",
-        "correct": "신체 일부가 광선을 차단하면 슬라이드 작동이 정지되는 방식",
-        "wrong": ["양손으로 버튼을 동시에 눌러야 작동되는 방식", "가드 문이 닫히지 않으면 기계가 작동하지 않는 방식", "기계에 접근 시 경보음이 울리는 방식"],
-        "article": "방호장치 안전인증 고시"
-    }
+    # 건설안전 (Construction)
+    {"subject": "건설안전", "fact": "사다리식 통로의 기울기", "correct": "75도 이하로 할 것", "wrong": ["85도 이하로 할 것", "60도 이하로 할 것", "90도 이하로 할 것"], "article": "제24조", "rev": "2024.12.27 개정"},
+    {"subject": "건설안전", "fact": "추락방호망 설치 시 망의 처짐", "correct": "짧은 변 길이의 12퍼센트 이상", "wrong": ["5퍼센트 이상", "20퍼센트 이상", "10퍼센트 이상"], "article": "제42조", "rev": "2025.01.01 시행"},
+    {"subject": "건설안전", "fact": "안전난간 발끝막이판의 설치 높이", "correct": "바닥면등으로부터 10센티미터 이상", "wrong": ["5센티미터 이상", "20센티미터 이상", "15센티미터 이상"], "article": "제13조", "rev": "2024.12.27 개정"},
+    {"subject": "건설안전", "fact": "강관비계 기둥의 간격 (띠장 방향)", "correct": "1.5미터 이상 1.8미터 이하", "wrong": ["2.0미터 이상 2.5미터 이하", "1.0미터 이상 1.5미터 이하", "1.8미터 이상 2.0미터 이하"], "article": "제60조", "rev": "2024.12.27 개정"},
+    {"subject": "건설안전", "fact": "굴착공사 시 지반의 경사도 (연암)", "correct": "1:1.0", "wrong": ["1:0.5", "1:1.2", "1:1.5"], "article": "제338조", "rev": "2024.12.27 개정"},
+    # 기계안전 (Mechanical)
+    {"subject": "기계안전", "fact": "달기 와이어로프의 안전계수", "correct": "10 이상", "wrong": ["5 이상", "4 이상", "8 이상"], "article": "제163조", "rev": "2024.12.27 개정"},
+    {"subject": "기계안전", "fact": "프레스 광전자식 방호장치의 반사판 오염 시", "correct": "급정지기구가 작동하여 정지되어야 함", "wrong": ["자동으로 저속 주행함", "별도 경보만 울림", "이상 없이 계속 가동됨"], "article": "방호장치 기준", "rev": "2023.10.15 개정"},
+    {"subject": "기계안전", "fact": "보일러의 압력제한스위치 설정값", "correct": "최고사용압력 이하", "wrong": ["최고사용압력의 1.1배", "설계압력의 1.5배", "상용압력의 2배"], "article": "제117조", "rev": "2024.12.27 개정"},
+    {"subject": "기계안전", "fact": "지게차의 헤드가드 강도", "correct": "최대하중의 2배 (4톤 초과 시 4톤)", "wrong": ["최대하중의 1배", "최대하중의 3배", "5톤 고정"], "article": "제179조", "rev": "2024.12.27 개정"},
+    # 전기안전 (Electrical)
+    {"subject": "전기안전", "fact": "특별고압 활선작업 시 이격거리 (22.9kV)", "correct": "90센티미터 이상", "wrong": ["60센티미터 이상", "120센티미터 이상", "30센티미터 이상"], "article": "제321조", "rev": "2024.12.27 개정"},
+    {"subject": "전기안전", "fact": "교류아크용접기용 자동전격방지기 작동", "correct": "무부하 전압을 25V 이하로 저하시킴", "wrong": ["전류를 50% 줄임", "전원을 완전히 차단함", "60V 이하로 유지함"], "article": "제306조", "rev": "2024.12.27 개정"},
+    {"subject": "전기안전", "fact": "접지저항 측정 주기 (1종 접지)", "correct": "매년 1회 이상", "wrong": ["매 2년 1회", "매 6개월 1회", "신설 시에만 실시"], "article": "제302조", "rev": "2025.01.01 시행"},
+    # 화공안전 (Chemical)
+    {"subject": "화공안전", "fact": "가연성 가스의 명칭 정의 (폭발하한)", "correct": "폭발하한이 10퍼센트 이하인 가스", "wrong": ["폭발하한이 20퍼센트 이하", "폭발상한이 10퍼센트 이상", "온도가 40도 이하"], "article": "별표 1", "rev": "2024.12.27 개정"},
+    {"subject": "화공안전", "fact": "공정안전보고서(PSM) 제출 대상 (염소)", "correct": "하루 1,500kg 이상 취급 시", "wrong": ["500kg 이상", "5,000kg 이상", "10,000kg 이상"], "article": "법 제44조", "rev": "2024.11.01 개정"},
+    # 보건안전 (Health)
+    {"subject": "보건안전", "fact": "소음작업 정의 (8시간 기준)", "correct": "85데시벨 이상", "wrong": ["90데시벨 이상", "80데시벨 이상", "95데시벨 이상"], "article": "제512조", "rev": "2024.12.27 개정"},
+    {"subject": "보건안전", "fact": "밀폐공간 산소농도 적정 범위", "correct": "18% 이상 23.5% 미만", "wrong": ["15% 이상 20%", "20% 이상 25%", "16% 이상 22%"], "article": "제618조", "rev": "2024.12.27 개정"}
 ]
 
-# Helper function to generate options
 def generate_options(fact_item, is_positive_query):
     correct_opt = fact_item["correct"]
-    wrong_opts = random.sample(fact_item["wrong"], min(3, len(fact_item["wrong"])))
+    raw_wrongs = fact_item["wrong"]
     
-    # Fill up to 3 wrong options if not enough
-    fillers = ["지정된 설계 기준의 2배로 설정할 것", "작업지휘자의 재량에 따라 수시로 변경할 것", "기본 규정의 50% 수준으로 완화할 것", "별도의 기준 없이 사업주 임의로 정할 것", "작업 효율을 위해 기준의 10%를 초과할 것"]
-    while len(wrong_opts) < 3:
-        w = random.choice(fillers)
-        if w not in wrong_opts:
-            wrong_opts.append(w)
-            
+    # Positive: Pick 1 correct, 3 wrongs
     if is_positive_query:
-        # Which is CORRECT? 
-        # 1 correct, 3 wrong
-        options = wrong_opts[:3] + [correct_opt]
-        answer_idx = 3
+        options = [correct_opt] + random.sample(raw_wrongs, 3)
+        answer_idx = 0
     else:
-        # Which is INCORRECT?
-        # 3 facts that are correct (we need true facts, which is hard. Let's just state the fact as correct, and one wrong value as incorrect)
-        correct_1 = correct_opt
-        correct_2 = "법령에 명시된 특별교육 및 안전 수칙을 준수한다."
-        correct_3 = "작업 전 관리감독자가 해당 장비의 이상유무를 점검한다."
-        wrong_1 = wrong_opts[0]
-        options = [correct_1, correct_2, correct_3, wrong_1]
+        # Negative: Pick 3 variations of correct (paraphrased) and 1 wrong
+        correct_variations = [
+            correct_opt,
+            "법령에서 정한 기준 수치를 엄격히 준수해야 한다.",
+            "해당 작업의 사전조사 및 안전 작업계획서에 따라 적용한다."
+        ]
+        options = correct_variations + [raw_wrongs[0]]
         answer_idx = 3
 
-    # Shuffle the options
     idx_list = list(range(4))
     random.shuffle(idx_list)
     shuffled_options = [options[i] for i in idx_list]
     new_ans_idx = idx_list.index(answer_idx)
-    
     return shuffled_options, new_ans_idx
 
 questions = []
-
-templates_positive = [
-    "산업안전보건법령상 {fact}에 대한 설명으로 옳은 것은?",
-    "다음 중 {fact} 기준으로 법령에 부합하는 것은?",
-    "건설 및 산업 현장에서 {fact} 시 기준으로 올바른 수치는?"
-]
-
-templates_negative = [
-    "산업안전보건법상 {fact} 규정으로 틀린 것은?",
-    "다음 중 {fact} 조치에 관한 설명으로 가장 거리가 먼 것은?",
-    "{fact} 관련 사업주 준수 사항 중 법적 기준을 위반한 내용은?"
-]
-
 for i in range(1, 1001):
     f = random.choice(facts)
     is_positive = random.choice([True, False])
     
+    q_pre = "산업안전보건법령 및 안전보건기준에 관한 규칙에 따라, "
+    q_context = f"'{f['fact']}'"
     if is_positive:
-        q_text = random.choice(templates_positive).format(fact=f["fact"])
+        q_text = f"{q_pre} {q_context}에 관한 기준으로 옳은 것은?"
     else:
-        q_text = random.choice(templates_negative).format(fact=f["fact"])
+        q_text = f"{q_pre} {q_context}에 대한 설명 중 틀린 것은?"
         
     opts, ans_idx = generate_options(f, is_positive)
     
-    # Generate realistic explanation
-    exp = f"[법령 근거: {f['article']}]\n관련 규정에 따르면 {f['fact']} 기준은 반드시 '{f['correct']}'이어야 합니다. 오답으로 제시된 수치나 임의의 해석은 중대재해를 유발할 수 있는 중대한 법령 위반입니다."
-    
+    # Meta inclusion of revision date
+    exp = f"[최신 법령 근거: {f['article']} ({f['rev']})]\n"
+    exp += f"정답 근거: {f['fact']}의 법적 기준은 '{f['correct']}'입니다.\n"
+    exp += "산업현장에서는 이 수치를 임의로 변경하여 적용할 수 없으며, 위반 시 행정처분 및 관련 법에 따라 처벌받을 수 있습니다."
+
     questions.append({
         "id": i,
         "subject": f["subject"],
-        "text": f"{q_text} ({i}번 문항)",
+        "text": f"{q_text} (No.{i})",
         "options": opts,
         "answer": ans_idx,
         "explanation": exp
     })
 
-with open('/Users/jaeyoung/Desktop/projects/safeedu-pro/src/data/questions.json', 'w', encoding='utf-8') as file:
+with open('src/data/questions.json', 'w', encoding='utf-8') as file:
     json.dump(questions, file, ensure_ascii=False, indent=2)
 
-print("Successfully generated 1000 highly realistic CBT questions based on numeric facts.")
-
+print(f"Successfully generated 1000 CBT questions for subjects: {set(f['subject'] for f in facts)}")

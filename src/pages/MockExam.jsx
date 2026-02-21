@@ -29,6 +29,7 @@ export default function MockExam() {
     const [filterStates, setFilterStates] = useState(initialState.filterStates);
 
     const [allQuestions, setAllQuestions] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState('전체');
 
     useEffect(() => {
         const storedCustomMaterial = localStorage.getItem(`${currentUser}_customLearningMaterial`);
@@ -52,26 +53,26 @@ export default function MockExam() {
 
         let combined = [...MOCK_QUESTIONS, ...customQuestions];
 
-        // Use saved shuffled order if it exists and matches the current questions length
-        const savedOrder = initialState.shuffledOrder;
-        if (savedOrder && savedOrder.length === combined.length && combined.every(q => savedOrder.includes(q.id))) {
-            combined.sort((a, b) => savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id));
-        } else {
-            // New random shuffle
-            combined.sort(() => Math.random() - 0.5);
-            const newOrder = combined.map(q => q.id);
-            localStorage.setItem(storageKey, JSON.stringify({ ...initialState, shuffledOrder: newOrder }));
+        // Filter by subject if not '전체'
+        if (selectedSubject !== '전체') {
+            combined = combined.filter(q => q.subject === selectedSubject);
         }
 
+        // Use saved shuffled order if it exists and matches the current questions length
+        // However, with subject filtering, we might want a fresh shuffle or a subject-specific shuffle.
+        // For simplicity and to satisfy the "diverse" feel, let's reshuffle when subject changes.
+        combined.sort(() => Math.random() - 0.5);
+
         setAllQuestions(combined);
-    }, [currentUser]); // Run once on mount
+        setCurrentQIndex(0); // Reset index when filter changes
+    }, [currentUser, selectedSubject]); // Run when user or subject changes
 
     useEffect(() => {
         if (allQuestions.length === 0) return;
         const currentOrder = allQuestions.map(q => q.id);
-        const stateToSave = { currentQIndex, selectedAnswers, evaluatedQuestions, filterStates, shuffledOrder: currentOrder };
+        const stateToSave = { currentQIndex, selectedAnswers, evaluatedQuestions, filterStates, shuffledOrder: currentOrder, selectedSubject };
         localStorage.setItem(storageKey, JSON.stringify(stateToSave));
-    }, [currentQIndex, selectedAnswers, evaluatedQuestions, filterStates, storageKey, allQuestions]);
+    }, [currentQIndex, selectedAnswers, evaluatedQuestions, filterStates, storageKey, allQuestions, selectedSubject]);
 
     if (allQuestions.length === 0) return <div className="p-8 text-center">문제를 불러오는 중입니다...</div>;
 
@@ -112,6 +113,22 @@ export default function MockExam() {
                 <div className="exam-info">
                     <button className="back-btn" onClick={() => navigate('/dashboard')}><ArrowLeft /> 대시보드</button>
                     <h2>2025 1차 공통필수 모의고사 (CBT)</h2>
+                </div>
+                <div className="exam-filters" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 'bold' }}>과목 필터:</label>
+                    <select
+                        value={selectedSubject}
+                        onChange={(e) => setSelectedSubject(e.target.value)}
+                        style={{ padding: '5px 10px', borderRadius: '5px', border: '1px solid #ddd' }}
+                    >
+                        <option value="전체">전체 (1000제)</option>
+                        <option value="건설안전">건설안전</option>
+                        <option value="기계안전">기계안전</option>
+                        <option value="전기안전">전기안전</option>
+                        <option value="화공안전">화공안전</option>
+                        <option value="보건안전">보건안전</option>
+                        <option value="산업안전법령">산업안전법령</option>
+                    </select>
                 </div>
             </header>
 

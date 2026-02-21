@@ -25,6 +25,7 @@ export default function EssayExam() {
     const [evaluatedQuestions, setEvaluatedQuestions] = useState(initialState.evaluatedQuestions || {});
 
     const [allQuestions, setAllQuestions] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState('전체');
     const [answer, setAnswer] = useState('');
     const [feedback, setFeedback] = useState(null);
 
@@ -51,22 +52,22 @@ export default function EssayExam() {
 
         let combined = [...ESSAY_QUESTIONS_DATA, ...customQuestions];
 
-        const savedOrder = initialState.shuffledOrder;
-        if (savedOrder && savedOrder.length === combined.length && combined.every(q => savedOrder.includes(q.id))) {
-            combined.sort((a, b) => savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id));
-        } else {
-            combined.sort(() => Math.random() - 0.5);
-            const newOrder = combined.map(q => q.id);
-            localStorage.setItem(storageKey, JSON.stringify({ ...initialState, shuffledOrder: newOrder }));
+        // Filter by subject if not '전체'
+        if (selectedSubject !== '전체') {
+            combined = combined.filter(q => q.subject === selectedSubject);
         }
 
+        // Shuffle within the selection
+        combined.sort(() => Math.random() - 0.5);
+
         setAllQuestions(combined);
-    }, [currentUser]);
+        setCurrentQIndex(0);
+    }, [currentUser, selectedSubject]);
 
     useEffect(() => {
         if (allQuestions.length === 0) return;
         const currentOrder = allQuestions.map(q => q.id);
-        const stateToSave = { currentQIndex, answers, evaluatedQuestions, shuffledOrder: currentOrder };
+        const stateToSave = { currentQIndex, answers, evaluatedQuestions, shuffledOrder: currentOrder, selectedSubject };
         localStorage.setItem(storageKey, JSON.stringify(stateToSave));
 
         // Restore local answer text box and feedback if it was evaluated
@@ -79,7 +80,7 @@ export default function EssayExam() {
                 setFeedback(null);
             }
         }
-    }, [currentQIndex, answers, evaluatedQuestions, storageKey, allQuestions]);
+    }, [currentQIndex, answers, evaluatedQuestions, storageKey, allQuestions, selectedSubject]);
 
     if (allQuestions.length === 0) return <div className="p-8 text-center">논술 문항을 불러오는 중입니다...</div>;
 
@@ -135,7 +136,21 @@ export default function EssayExam() {
             <header className="exam-header glass-panel">
                 <div className="exam-info">
                     <button className="back-btn" onClick={() => navigate('/dashboard')}><ArrowLeft /> 대시보드</button>
-                    <h2>2차 전공필수 (건설안전 주관식 논술) 대비</h2>
+                    <h2>2차 전공필수 (산업안전 주관식 논술) 대비</h2>
+                </div>
+                <div className="exam-filters" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <label style={{ fontSize: '14px', fontWeight: 'bold' }}>전공 분야:</label>
+                    <select
+                        value={selectedSubject}
+                        onChange={(e) => setSelectedSubject(e.target.value)}
+                        style={{ padding: '5px 10px', borderRadius: '5px', border: '1px solid #ddd' }}
+                    >
+                        <option value="전체">전체 (1000제)</option>
+                        <option value="건설안전">건설안전</option>
+                        <option value="기계안전">기계안전</option>
+                        <option value="전기안전">전기안전</option>
+                        <option value="화공안전">화공안전</option>
+                    </select>
                 </div>
             </header>
 
