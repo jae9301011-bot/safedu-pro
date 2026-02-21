@@ -153,21 +153,21 @@ export default function Dashboard() {
                                     <div className="review-progress" style={{ width: '90%' }}></div>
                                     <div className="review-content">
                                         <span>산업안전보건법 제 38조 (위험조치)</span>
-                                        <button className="btn-small outline">복습하기</button>
+                                        <button className="btn-small outline" onClick={handleCBTNavigate}>복습하기</button>
                                     </div>
                                 </div>
                                 <div className="review-item">
                                     <div className="review-progress warning" style={{ width: '40%' }}></div>
                                     <div className="review-content">
                                         <span>타워크레인 붕괴 원인 (14회 기출)</span>
-                                        <button className="btn-small outline">복습하기</button>
+                                        <button className="btn-small outline" onClick={handleCBTNavigate}>복습하기</button>
                                     </div>
                                 </div>
                                 <div className="review-item">
                                     <div className="review-progress danger" style={{ width: '20%' }}></div>
                                     <div className="review-content">
                                         <span>위험성 평가 절차 5단계</span>
-                                        <button className="btn-small outline">복습하기</button>
+                                        <button className="btn-small outline" onClick={handleCBTNavigate}>복습하기</button>
                                     </div>
                                 </div>
                             </div>
@@ -201,7 +201,7 @@ export default function Dashboard() {
                                         <span className="stat-label">작성 완료 노트</span>
                                     </div>
                                     <p>'먹보의 법칙' : 얇고 넓게 1차 객관식을 접하며 핵심 키워드 위주로 나만의 노트를 구성하세요.</p>
-                                    <button className="btn-primary full-width mt-4">새 서브노트 작성</button>
+                                    <button className="btn-primary full-width mt-4" onClick={() => navigate('/study/note')}>새 서브노트 작성</button>
                                 </div>
                             </>
                         )}
