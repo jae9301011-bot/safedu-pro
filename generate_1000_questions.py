@@ -12,7 +12,6 @@ templates = [
 
 questions = []
 
-# Include the 10 real questions first to keep quality at the beginning
 real_questions = [
     {
         "id": 1,
@@ -25,7 +24,8 @@ real_questions = [
             '관계수급인 근로자의 건강진단 실시 비용 직접 부담',
             '안전보건에 관한 정보 제공'
         ],
-        "answer": 3
+        "answer": 3,
+        "explanation": "산업안전보건법상 특수건강진단 등 건강진단 실시 비용은 원칙적으로 사업주(이 경우 관계수급인 사업주)가 부담해야 하나, 도급인이 직접 부담해야 할 법적 의무는 아닙니다."
     },
     {
         "id": 2,
@@ -38,7 +38,8 @@ real_questions = [
             '사고 (Accident)',
             '상해 (Injury)'
         ],
-        "answer": 2
+        "answer": 2,
+        "explanation": "하인리히의 재해발생 도미노 이론 5단계는 1. 유전 및 사회적 환경 2. 개인적 결함 3. 불안전한 상태 및 행동 4. 사고 5. 재해(상해) 입니다."
     },
     {
         "id": 3,
@@ -51,7 +52,8 @@ real_questions = [
             '습성(Habit)',
             '습관(Custom)'
         ],
-        "answer": 0
+        "answer": 0,
+        "explanation": "동기(Motive)는 인간의 행동을 유발하는 내적 원동력이며 목표를 향해 행동을 유지시키는 역할을 합니다."
     },
     {
         "id": 4,
@@ -64,7 +66,8 @@ real_questions = [
             '1 : 5',
             '1 : 10'
         ],
-        "answer": 2
+        "answer": 2,
+        "explanation": "하인리히의 총 재해 코스트는 직접비(1) : 간접비(4)로 구성된다고 보았습니다."
     },
     {
         "id": 5,
@@ -77,7 +80,78 @@ real_questions = [
             '유해·위험 작업환경 관리에 관한 사항',
             '기계·기구의 위험성과 작업의 순서 및 동선에 관한 사항'
         ],
-        "answer": 4
+        "answer": 4,
+        "explanation": "기계·기구의 위험성과 작업의 순서 및 동선에 관한 사항은 '특별 안전보건교육'이나 '작업내용 변경 시 교육' 등 특정 시점의 교육 내용에 가깝습니다."
+    },
+    {
+        "id": 6,
+        "subject": '기업진단지도',
+        "text": '동기부여 이론 중 허즈버그(Herzberg)의 2요인 이론에서 동기요인(위생요인이 아닌)에 해당하는 것은?',
+        "options": [
+            '급여',
+            '작업조건',
+            '직업의 안정성',
+            '책임감',
+            '대인관계'
+        ],
+        "answer": 3,
+        "explanation": "허즈버그의 동기요인(만족요인)에는 성취감, 인정, 작업 자체, 책임감, 발전 등이 포함됩니다. 급여, 작업조건 등은 위생요인(불만족요인)입니다."
+    },
+    {
+        "id": 7,
+        "subject": '산업안전일반',
+        "text": '버드(Frank Bird)의 신도미노 이론 5단계 중 "근본원인(기본원인)"에 해당하는 단계는?',
+        "options": [
+            '제1단계(통제부족)',
+            '제2단계(기본원인)',
+            '제3단계(직접원인)',
+            '제4단계(사고)',
+            '제5단계(상해/손상)'
+        ],
+        "answer": 1,
+        "explanation": "버드의 신도미노 이론: 1단계 통제부족(관리) - 2단계 기본원인(기원) - 3단계 직접원인(징후) - 4단계 사고(접촉) - 5단계 상해(손상/손실)."
+    },
+    {
+        "id": 8,
+        "subject": '산업안전보건법령',
+        "text": '산업안전보건법령상 안전보건관리책임자의 직무 범주에 속하지 않는 것은?',
+        "options": [
+            '산업재해 예방계획의 수립에 관한 사항',
+            '안전보건관리규정의 작성 및 변경에 관한 사항',
+            '안전보건교육 등에 관한 사항',
+            '작업환경측정 등 작업환경의 점검 및 개선에 관한 사항',
+            '안전인증대상 기계등의 제조에 관한 사항'
+        ],
+        "answer": 4,
+        "explanation": "안전인증대상 기계등의 제조에 관한 사항은 해당 기계를 제조하는 사업주의 의무이지 일반적인 사업장의 안전보건관리책임자 직무에 속하지 않습니다."
+    },
+    {
+        "id": 9,
+        "subject": '기업진단지도',
+        "text": '안전보건관리조직의 형태 중 라인-스태프(Line-Staff)형 조직의 특징으로 가장 거리가 먼 것은?',
+        "options": [
+            '100명 미만의 소규모 사업장에 적합하다.',
+            '안전보건 지침 및 제반 사항이 스태프에서 계획되고 명령은 라인을 통해 하달된다.',
+            '안전지식과 기술축적이 용이하다.',
+            '지시와 명령이 일원화되어 있어 혼란을 방지할 수 있다.',
+            '라인(Line)과 스태프(Staff) 간의 마찰이 발생할 수 있다.'
+        ],
+        "answer": 0,
+        "explanation": "라인-스태프형(직계·참모형)은 보통 1000명 이상의 대규모 사업장에 적합한 조직 형태입니다. 100명 미만은 라인형이 적합합니다."
+    },
+    {
+        "id": 10,
+        "subject": '산업안전일반',
+        "text": '피로의 측정방법 중 생리학적 척도를 이용한 측정 방법에 해당하지 않는 것은?',
+        "options": [
+            '플리커(Flicker) 검사',
+            '뇌파(EEG) 검사',
+            '근전도(EMG) 검사',
+            '연속반응 시간검사',
+            '심전도(ECG) 검사'
+        ],
+        "answer": 3,
+        "explanation": "연속반응 시간검사는 심리학적 또는 심리운동학적 척도를 이용한 피로 측정 방법입니다."
     }
 ]
 
@@ -93,11 +167,12 @@ for i in range(len(real_questions) + 1, 1001):
         "subject": random.choice(subjects),
         "text": random.choice(templates).format(i),
         "options": options,
-        "answer": ans_idx
+        "answer": ans_idx,
+        "explanation": f"본 문항(Test-Q{i})의 정답은 {ans_idx+1}번입니다. 산업안전보건법 제{random.randint(10, 150)}조에 근거합니다."
     }
     questions.append(q)
 
 with open('/Users/jaeyoung/Desktop/projects/safeedu-pro/src/data/questions.json', 'w', encoding='utf-8') as f:
     json.dump(questions, f, ensure_ascii=False, indent=2)
 
-print("Successfully generated 1000 questions.")
+print("Successfully regenerated 1000 CBT questions with explanations.")

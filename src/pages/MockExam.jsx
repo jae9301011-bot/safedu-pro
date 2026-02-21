@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, CheckCircle, Trash2, Repeat, LayoutList } from 'lucid
 
 import MOCK_QUESTIONS_DATA from '../data/questions.json';
 
+
 export const MOCK_QUESTIONS = MOCK_QUESTIONS_DATA;
 
 export default function MockExam() {
@@ -17,53 +18,80 @@ export default function MockExam() {
         if (saved) {
             try { return JSON.parse(saved); } catch (e) { console.error(e); }
         }
-        return { currentQIndex: 0, selectedAnswers: {}, submitted: false, filterStates: {} };
+        return { currentQIndex: 0, selectedAnswers: {}, evaluatedQuestions: {}, filterStates: {}, shuffledOrder: null };
     };
 
     const initialState = getInitialState();
 
     const [currentQIndex, setCurrentQIndex] = useState(initialState.currentQIndex);
     const [selectedAnswers, setSelectedAnswers] = useState(initialState.selectedAnswers);
-    const [submitted, setSubmitted] = useState(initialState.submitted);
-    // 3-tier filter state for smart note: 'discard', 'review', 'keep'
+    const [evaluatedQuestions, setEvaluatedQuestions] = useState(initialState.evaluatedQuestions || {});
     const [filterStates, setFilterStates] = useState(initialState.filterStates);
 
-    useEffect(() => {
-        const stateToSave = { currentQIndex, selectedAnswers, submitted, filterStates };
-        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
-    }, [currentQIndex, selectedAnswers, submitted, filterStates, storageKey]);
-
-    const [customQuestions, setCustomQuestions] = useState([]);
+    const [allQuestions, setAllQuestions] = useState([]);
 
     useEffect(() => {
-        const user = localStorage.getItem('currentUser') || 'default';
-        const storedCustomMaterial = localStorage.getItem(`${user}_customLearningMaterial`);
+        const storedCustomMaterial = localStorage.getItem(`${currentUser}_customLearningMaterial`);
+        let customQuestions = [];
         if (storedCustomMaterial) {
             try {
                 const parsed = JSON.parse(storedCustomMaterial);
-                // Ensure it has basic structure or adapt it
-                const adapted = parsed.map((item, index) => ({
+                customQuestions = parsed.map((item, index) => ({
                     id: `custom_${index}`,
                     subject: item.subject || '커스텀 문제',
                     text: item.text || item.question || '내용 없음',
                     options: item.options ? (Array.isArray(item.options) ? item.options : item.options.split('|')) : ['O', 'X', '보기없음', '보기없음'],
                     answer: item.answer !== undefined ? parseInt(item.answer, 10) : 0,
+                    explanation: item.explanation || item.officialStandard || "해설이 제공되지 않은 커스텀 문제입니다.",
                     isCustom: true
                 }));
-                setCustomQuestions(adapted);
             } catch (e) {
                 console.error("Error parsing custom materials", e);
             }
         }
-    }, []);
 
-    const allQuestions = [...MOCK_QUESTIONS, ...customQuestions];
+        let combined = [...MOCK_QUESTIONS, ...customQuestions];
+
+        // Use saved shuffled order if it exists and matches the current questions length
+        const savedOrder = initialState.shuffledOrder;
+        if (savedOrder && savedOrder.length === combined.length && combined.every(q => savedOrder.includes(q.id))) {
+            combined.sort((a, b) => savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id));
+        } else {
+            // New random shuffle
+            combined.sort(() => Math.random() - 0.5);
+            const newOrder = combined.map(q => q.id);
+            localStorage.setItem(storageKey, JSON.stringify({ ...initialState, shuffledOrder: newOrder }));
+        }
+
+        setAllQuestions(combined);
+    }, [currentUser]); // Run once on mount
+
+    useEffect(() => {
+        if (allQuestions.length === 0) return;
+        const currentOrder = allQuestions.map(q => q.id);
+        const stateToSave = { currentQIndex, selectedAnswers, evaluatedQuestions, filterStates, shuffledOrder: currentOrder };
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+    }, [currentQIndex, selectedAnswers, evaluatedQuestions, filterStates, storageKey, allQuestions]);
+
+    if (allQuestions.length === 0) return <div className="p-8 text-center">문제를 불러오는 중입니다...</div>;
+
     const question = allQuestions[currentQIndex];
+    if (!question) return null;
+
     const isLast = currentQIndex === allQuestions.length - 1;
+    const isEvaluated = evaluatedQuestions[question.id] === true;
 
     const handleSelect = (idx) => {
-        if (submitted) return;
+        if (isEvaluated) return;
         setSelectedAnswers(prev => ({ ...prev, [question.id]: idx }));
+    };
+
+    const handleCheckAnswer = () => {
+        if (selectedAnswers[question.id] === undefined) {
+            alert("정답을 선택해주세요.");
+            return;
+        }
+        setEvaluatedQuestions(prev => ({ ...prev, [question.id]: true }));
     };
 
     const handleNext = () => {
@@ -74,59 +102,63 @@ export default function MockExam() {
         if (currentQIndex > 0) setCurrentQIndex(prev => prev - 1);
     };
 
-    const handleSubmit = () => {
-        setSubmitted(true);
-    };
-
     const handleSetFilter = (qId, state) => {
         setFilterStates(prev => ({ ...prev, [qId]: state }));
     };
 
     return (
         <div className="exam-layout">
-            {/* Exam Header (Q-Net Style Mockup) */}
             <header className="exam-header glass-panel">
                 <div className="exam-info">
                     <button className="back-btn" onClick={() => navigate('/dashboard')}><ArrowLeft /> 대시보드</button>
                     <h2>2025 1차 공통필수 모의고사 (CBT)</h2>
-                </div>
-                <div className="exam-timer">
-                    <Clock /> <span>01:15:30 남음</span>
                 </div>
             </header>
 
             <main className="exam-main">
                 <div className="question-panel glass-panel">
                     <div className="q-meta">
-                        <span className="q-subject">{question?.subject} {question?.isCustom && '(사용자 추가)'}</span>
+                        <span className="q-subject">{question.subject} {question.isCustom && '(사용자 추가)'}</span>
                         <span className="q-num">문제 {currentQIndex + 1} / {allQuestions.length}</span>
                     </div>
 
-                    <h3 className="q-text">{question?.text}</h3>
+                    <h3 className="q-text">{question.text}</h3>
 
                     <div className="q-options">
-                        {question?.options.map((opt, idx) => (
-                            <button
-                                key={idx}
-                                className={`q-option ${selectedAnswers[question.id] === idx ? 'selected' : ''} ${submitted && question.answer === idx ? 'correct' : ''} ${submitted && selectedAnswers[question.id] === idx && question.answer !== idx ? 'wrong' : ''}`}
-                                onClick={() => handleSelect(idx)}
-                            >
-                                <span className="opt-num">{idx + 1}</span>
-                                <span className="opt-text">{opt}</span>
-                            </button>
-                        ))}
+                        {question.options.map((opt, idx) => {
+                            const isSelected = selectedAnswers[question.id] === idx;
+                            const isCorrectAns = question.answer === idx;
+                            const isWrongSelected = isSelected && !isCorrectAns;
+
+                            let classes = `q-option ${isSelected ? 'selected' : ''}`;
+                            if (isEvaluated) {
+                                if (isCorrectAns) classes += ' correct';
+                                if (isWrongSelected) classes += ' wrong';
+                            }
+
+                            return (
+                                <button
+                                    key={idx}
+                                    className={classes}
+                                    onClick={() => handleSelect(idx)}
+                                    disabled={isEvaluated}
+                                >
+                                    <span className="opt-num">{idx + 1}</span>
+                                    <span className="opt-text">{opt}</span>
+                                </button>
+                            );
+                        })}
                     </div>
 
-                    {/* Post-submission Review Actions */}
-                    {submitted && (
-                        <div className="review-actions fade-in">
+                    {isEvaluated && (
+                        <div className="review-actions fade-in mt-6">
                             <div className="explanation">
-                                <h4>📝 해설 및 최신 2025 법령 업데이트</h4>
-                                <p>도급인은 안전보건에 관한 필수 비용을 지원해야 하나, 관계수급인 근로자의 '일반 건강진단 비용' 자체를 법적으로 직접 부담할 의무는 없습니다 (산업안전보건법 제62조 참조).</p>
-                                <p className="highlight">※ 2025년 12월 1일 개정 알림: 50인 미만 사업장 유해위험방지계획서 제출 대상이 일부 확대되었습니다.</p>
+                                <h4>📝 정답 및 채점 완료</h4>
+                                <p className="mb-2"><strong>정답:</strong> {question.answer + 1}번</p>
+                                <p>{question.explanation || "이 문제에 대한 추가 해설 데이터가 존재하지 않습니다."}</p>
                             </div>
 
-                            <div className="smart-filter-pad">
+                            <div className="smart-filter-pad mt-4">
                                 <p>💡 이 문제를 나만의 오답노트에서 어떻게 관리하시겠습니까?</p>
                                 <div className="filter-buttons">
                                     <button
@@ -152,29 +184,29 @@ export default function MockExam() {
                         </div>
                     )}
 
-                    <div className="q-navigator">
+                    <div className="q-navigator mt-6 flex justify-between">
                         <button className="btn-secondary" onClick={handlePrev} disabled={currentQIndex === 0}>이전 문제</button>
-                        {!submitted ? (
-                            isLast ? <button className="btn-primary" onClick={handleSubmit}>답안 제출</button> : <button className="btn-primary" onClick={handleNext}>다음 문제</button>
+
+                        {!isEvaluated ? (
+                            <button className="btn-primary" onClick={handleCheckAnswer}>정답 확인 (채점)</button>
                         ) : (
-                            <button className="btn-primary" onClick={handleNext} disabled={isLast}>다음 해설장</button>
+                            <button className="btn-primary" onClick={handleNext} disabled={isLast}>다음 문제 ({currentQIndex + 1}/{allQuestions.length})</button>
                         )}
                     </div>
                 </div>
 
-                {/* OMR Card Sidebar Mockup */}
-                <aside className="omr-panel glass-panel">
-                    <h3>답안 표기란</h3>
+                <aside className="omr-panel glass-panel hidden md:block">
+                    <h3>답안 현황</h3>
                     <div className="omr-grid">
                         {allQuestions.map((q, idx) => (
-                            <div key={q.id} className="omr-row">
-                                <span className="omr-num">{idx + 1}</span>
+                            <div key={q.id} className="omr-row" onClick={() => setCurrentQIndex(idx)} style={{ cursor: 'pointer' }}>
+                                <span className={`omr-num ${idx === currentQIndex ? 'font-bold text-primary' : ''}`}>{idx + 1}</span>
                                 {[0, 1, 2, 3, 4].map(opt => (
                                     <span key={opt} className={`omr-marker ${selectedAnswers[q.id] === opt ? 'marked' : ''}`}>
                                         {opt + 1}
                                     </span>
                                 ))}
-                                {submitted && (
+                                {evaluatedQuestions[q.id] && (
                                     <span className="omr-result">
                                         {selectedAnswers[q.id] === q.answer ? <CheckCircle color="var(--color-success)" size={16} /> : '❌'}
                                     </span>

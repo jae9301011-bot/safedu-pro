@@ -3,49 +3,39 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit3, CheckCircle, AlertTriangle } from 'lucide-react';
 import './EssayExam.css';
 
-const MOCK_SCENARIOS = [
-    {
-        id: 1,
-        subject: '건설안전 전공필수',
-        frequency: '14회 중 11회 출제 (매우 중요)',
-        question: '건설현장에서 시스템 비계 조립 시 준수해야 할 기준 및 안전 조치 사항 5가지를 설명하시오.',
-        keywords: ['수직재', '수평재', '가새재', '밑받침철물', '벽이음', '침하 방지', '하중 한도', '작업발판'],
-        officialStandard: `제69조(시스템 비계의 구조) 사업주는 시스템 비계를 사용하여 비계를 구성하는 경우에 다음 각 호의 사항을 준수하여야 한다.
-1. 수직재ㆍ수평재ㆍ가새재를 견고하게 연결하는 구조가 되도록 할 것.
-2. 비계 밑단의 수직재와 받침철물은 밀착되도록 설치하고, 수직재와 받침철물의 연결부의 겹침길이는 받침철물 전체길이의 3분의 1 이상이 되도록 할 것.
-3. 수평재는 수직재와 직각으로 설치하여야 하며, 체결 후 흔들림이 없도록 견고하게 설치할 것.
-4. 수직재와 수직재의 연결철물은 이탈되지 않도록 견고한 구조로 할 것.
-5. 벽 연결재의 설치간격은 제조사가 정한 기준에 따라 설치할 것.`,
-        officialStandardDate: '[시행 2025. 12. 1.] 고용노동부령 제410호 (최신 개정 반영)'
-    },
-    {
-        id: 2,
-        subject: '건설안전 전공필수',
-        frequency: '14회 중 8회 출제 (중요)',
-        question: '굴착기(백호)를 사용한 굴착 작업 시 발생할 수 있는 주요 재해유형 3가지와 안전대책을 설명하시오.',
-        keywords: ['협착', '충돌', '전도', '작업계획서', '신호수', '유도자', '백미러', '전조등', '승차석 외 탑승금지', '버킷', '지반침하'],
-        officialStandard: `제200조(접촉 방지) ① 사업주는 차량계 건설기계를 사용하여 작업을 하는 경우에는 운전 중인 해당 차량계 건설기계에 접촉되어 근로자가 부딪칠 위험이 있는 장소에 근로자를 출입시켜서는 아니 된다. 다만, 유도자를 배치하고 해당 차량계 건설기계를 유도하는 경우에는 그러하지 아니하다.
-② 차량계 건설기계의 운전자는 제1항 단서의 유도자가 유도하는 대로 따라야 한다.`,
-        officialStandardDate: '[시행 2025. 12. 1.] 고용노동부령 제410호'
-    }
-];
+import ESSAY_QUESTIONS_DATA from '../data/essay_questions.json';
 
 export default function EssayExam() {
     const navigate = useNavigate();
-    const [currentQIndex, setCurrentQIndex] = useState(0);
-    const [customQuestions, setCustomQuestions] = useState([]);
+    const currentUser = localStorage.getItem('currentUser') || 'default';
+    const storageKey = `${currentUser} _essayExamState`;
+
+    const getInitialState = () => {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        }
+        return { currentQIndex: 0, answers: {}, evaluatedQuestions: {}, shuffledOrder: null };
+    };
+
+    const initialState = getInitialState();
+
+    const [currentQIndex, setCurrentQIndex] = useState(initialState.currentQIndex);
+    const [answers, setAnswers] = useState(initialState.answers);
+    const [evaluatedQuestions, setEvaluatedQuestions] = useState(initialState.evaluatedQuestions || {});
+
+    const [allQuestions, setAllQuestions] = useState([]);
     const [answer, setAnswer] = useState('');
-    const [isGraded, setIsGraded] = useState(false);
     const [feedback, setFeedback] = useState(null);
 
     useEffect(() => {
-        const user = localStorage.getItem('currentUser') || 'default';
-        const storedCustomMaterial = localStorage.getItem(`${user}_customEssayMaterial`);
+        const storedCustomMaterial = localStorage.getItem(`${currentUser} _customEssayMaterial`);
+        let customQuestions = [];
         if (storedCustomMaterial) {
             try {
                 const parsed = JSON.parse(storedCustomMaterial);
-                const adapted = parsed.map((item, index) => ({
-                    id: `custom_essay_${index}`,
+                customQuestions = parsed.map((item, index) => ({
+                    id: `custom_essay_${index} `,
                     subject: item.subject || '사용자 커스텀 논술',
                     frequency: item.frequency || '직접 업로드 문제',
                     question: item.question || item.text || '내용 없음',
@@ -54,23 +44,54 @@ export default function EssayExam() {
                     officialStandardDate: item.officialStandardDate || '해당없음',
                     isCustom: true
                 }));
-                setCustomQuestions(adapted);
             } catch (e) {
                 console.error("Error parsing custom essay materials", e);
             }
         }
-    }, []);
 
-    const allQuestions = [...MOCK_SCENARIOS, ...customQuestions];
+        let combined = [...ESSAY_QUESTIONS_DATA, ...customQuestions];
+
+        const savedOrder = initialState.shuffledOrder;
+        if (savedOrder && savedOrder.length === combined.length && combined.every(q => savedOrder.includes(q.id))) {
+            combined.sort((a, b) => savedOrder.indexOf(a.id) - savedOrder.indexOf(b.id));
+        } else {
+            combined.sort(() => Math.random() - 0.5);
+            const newOrder = combined.map(q => q.id);
+            localStorage.setItem(storageKey, JSON.stringify({ ...initialState, shuffledOrder: newOrder }));
+        }
+
+        setAllQuestions(combined);
+    }, [currentUser]);
+
+    useEffect(() => {
+        if (allQuestions.length === 0) return;
+        const currentOrder = allQuestions.map(q => q.id);
+        const stateToSave = { currentQIndex, answers, evaluatedQuestions, shuffledOrder: currentOrder };
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+
+        // Restore local answer text box and feedback if it was evaluated
+        const qId = allQuestions[currentQIndex]?.id;
+        if (qId) {
+            setAnswer(answers[qId] || '');
+            if (evaluatedQuestions[qId]) {
+                generateMockFeedback(answers[qId] || '', allQuestions[currentQIndex]);
+            } else {
+                setFeedback(null);
+            }
+        }
+    }, [currentQIndex, answers, evaluatedQuestions, storageKey, allQuestions]);
+
+    if (allQuestions.length === 0) return <div className="p-8 text-center">논술 문항을 불러오는 중입니다...</div>;
+
     const scenario = allQuestions[currentQIndex];
-    if (!scenario) return null; // safety check
+    if (!scenario) return null;
 
     const isLast = currentQIndex === allQuestions.length - 1;
+    const isGraded = evaluatedQuestions[scenario.id] === true;
 
-    const handleGrade = (submittedAnswer = answer) => {
-        // Simple mock logic for AI keyword matching
-        const foundKeywords = scenario.keywords.filter(kw => submittedAnswer.includes(kw));
-        const coverage = (foundKeywords.length / scenario.keywords.length) * 100;
+    const generateMockFeedback = (submittedAnswer, currentScenario) => {
+        const foundKeywords = currentScenario.keywords.filter(kw => submittedAnswer.includes(kw));
+        const coverage = currentScenario.keywords.length > 0 ? (foundKeywords.length / currentScenario.keywords.length) * 100 : 100;
 
         let score = 'Needs Work';
         let color = 'var(--color-danger)';
@@ -84,24 +105,29 @@ export default function EssayExam() {
 
         setFeedback({
             found: foundKeywords,
-            missing: scenario.keywords.filter(kw => !submittedAnswer.includes(kw)),
+            missing: currentScenario.keywords.filter(kw => !submittedAnswer.includes(kw)),
             score,
             color,
             coverage: Math.round(coverage)
         });
-        setIsGraded(true);
+    };
+
+    const handleGrade = (submittedAnswer = answer) => {
+        setAnswers(prev => ({ ...prev, [scenario.id]: submittedAnswer }));
+        setEvaluatedQuestions(prev => ({ ...prev, [scenario.id]: true }));
     };
 
     const handleNext = () => {
         if (!isLast) {
             setCurrentQIndex(prev => prev + 1);
-            setAnswer('');
-            setIsGraded(false);
-            setFeedback(null);
         } else {
-            alert('모든 모의고사를 완료했습니다! 대시보드로 이동합니다.');
+            alert('모든 논술 모의고사를 완료했습니다! 대시보드로 이동합니다.');
             navigate('/dashboard');
         }
+    };
+
+    const handlePrev = () => {
+        if (currentQIndex > 0) setCurrentQIndex(prev => prev - 1);
     };
 
     return (
@@ -111,14 +137,13 @@ export default function EssayExam() {
                     <button className="back-btn" onClick={() => navigate('/dashboard')}><ArrowLeft /> 대시보드</button>
                     <h2>2차 전공필수 (건설안전 주관식 논술) 대비</h2>
                 </div>
-                <div className="exam-timer">지정 시간: 100분</div>
             </header>
 
             <main className="essay-main">
                 <div className="scenario-panel glass-panel mb-4">
                     <div className="flex justify-between items-center mb-4">
-                        <span className={`badge ${scenario.isCustom ? 'success' : 'warning'}`}>{scenario.subject} (문제 {currentQIndex + 1}/{allQuestions.length}) {scenario.isCustom && '⭐ 신규 업로드'}</span>
-                        <span className="text-danger font-bold flex items-center gap-2"><AlertTriangle size={18} /> {scenario.frequency}</span>
+                        <span className={`badge ${scenario.isCustom ? 'success' : 'warning'} `}>{scenario.subject} (문제 {currentQIndex + 1}/{allQuestions.length}) {scenario.isCustom && '⭐ 신규 업로드'}</span>
+                        <span className="text-danger font-bold flex items-center gap-2"><AlertTriangle size={18} /> {scenario.frequency || "모의고사"}</span>
                     </div>
                     <h3 className="text-xl mb-2">{scenario.question}</h3>
                     <p className="text-muted text-sm">💡 답안에 핵심 법적 근거 및 필수 키워드가 포함되어야 고득점이 가능합니다.</p>
@@ -137,7 +162,7 @@ export default function EssayExam() {
                     {!isGraded && (
                         <div className="flex justify-between items-center mt-4">
                             <button className="btn-small text-muted outline" onClick={() => handleGrade('')}>모르겠습니다 (오답 제출)</button>
-                            <button className="btn-primary" onClick={() => handleGrade(answer)}>AI 자가 채점 및 키워드 분석</button>
+                            <button className="btn-primary" onClick={() => handleGrade(answer)}>AI 자가 채점 및 해설 보기</button>
                         </div>
                     )}
                 </div>
@@ -146,7 +171,7 @@ export default function EssayExam() {
                     <div className="feedback-panel glass-panel mt-4 fade-in">
                         <div className="feedback-header pb-4 border-b mb-4 flex justify-between items-center">
                             <h3>🤖 AI 분석 리포트</h3>
-                            <div className="score-badge" style={{ backgroundColor: `${feedback.color}20`, color: feedback.color, border: `1px solid ${feedback.color}` }}>
+                            <div className="score-badge" style={{ backgroundColor: `${feedback.color} 20`, color: feedback.color, border: `1px solid ${feedback.color} ` }}>
                                 {feedback.score} (키워드 매칭: {feedback.coverage}%)
                             </div>
                         </div>
@@ -168,25 +193,33 @@ export default function EssayExam() {
                         </div>
 
                         <div className="mt-8 pt-4 border-t">
-                            <h4 className="mb-2">💡 AI 총평 가이드</h4>
-                            <p className="text-muted text-sm bg-mute p-4 rounded mb-4">
-                                시스템 비계 조립의 핵심은 구조적 안정성을 확보하기 위한 '수직재', '수평재', '가새재'의 견고한 연결과 지반의 '침하 방지' 조치(밑받침철물)입니다. 또한 건물과 고정하는 '벽이음'을 규정에 따라 설치하여 넘어짐을 방지하는 안전보건규칙 기준을 서술해야 합니다.
-                            </p>
+                            <h4 className="mb-2">💡 답안 및 해설 가이드</h4>
 
                             <div className="official-standard bg-mute p-4 rounded border-l-4">
-                                <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령)</h4>
+                                <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령 등)</h4>
                                 <p className="text-sm font-bold whitespace-pre-wrap">{scenario.officialStandard}</p>
-                                <p className="text-xs text-danger font-bold mt-2">※ 기준 법령: {scenario.officialStandardDate}</p>
+                                {scenario.officialStandardDate && scenario.officialStandardDate !== '해당없음' && (
+                                    <p className="text-xs text-danger font-bold mt-2">※ 기준 법령: {scenario.officialStandardDate}</p>
+                                )}
                             </div>
 
                             <div className="flex gap-2 mt-4">
-                                <button className="btn-secondary flex-1" onClick={() => { setIsGraded(false); setFeedback(null); }}>답안 수정하기</button>
-                                <button className="btn-primary flex-1" onClick={handleNext}>{isLast ? '결과 완료' : '다음 문제로 넘어갈래요'}</button>
+                                <button className="btn-secondary flex-1" onClick={() => {
+                                    setEvaluatedQuestions(prev => ({ ...prev, [scenario.id]: false }));
+                                    setFeedback(null);
+                                }}>답안 다시 작성하기 (수정)</button>
                             </div>
                         </div>
                     </div>
                 )}
-            </main>
-        </div>
+
+                <div className="q-navigator mt-6 flex justify-between">
+                    <button className="btn-secondary" onClick={handlePrev} disabled={currentQIndex === 0}>이전 문제</button>
+                    {isGraded && (
+                        <button className="btn-primary" onClick={handleNext}>{isLast ? '결과 완료' : `다음 문제(${currentQIndex + 1}/${allQuestions.length})`}</button >
+                    )}
+                </div >
+            </main >
+        </div >
     );
 }
