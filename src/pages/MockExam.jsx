@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './MockExam.css';
 import { ArrowLeft, Clock, CheckCircle, Trash2, Repeat, LayoutList } from 'lucide-react';
 
-const MOCK_QUESTIONS = [
+export const MOCK_QUESTIONS = [
     {
         id: 1,
         subject: '산업안전보건법령',
@@ -34,12 +34,29 @@ const MOCK_QUESTIONS = [
 
 export default function MockExam() {
     const navigate = useNavigate();
-    const [currentQIndex, setCurrentQIndex] = useState(0);
-    const [selectedAnswers, setSelectedAnswers] = useState({});
-    const [submitted, setSubmitted] = useState(false);
+    const currentUser = localStorage.getItem('currentUser') || 'default';
+    const storageKey = `${currentUser}_cbtExamState`;
 
+    const getInitialState = () => {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+            try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        }
+        return { currentQIndex: 0, selectedAnswers: {}, submitted: false, filterStates: {} };
+    };
+
+    const initialState = getInitialState();
+
+    const [currentQIndex, setCurrentQIndex] = useState(initialState.currentQIndex);
+    const [selectedAnswers, setSelectedAnswers] = useState(initialState.selectedAnswers);
+    const [submitted, setSubmitted] = useState(initialState.submitted);
     // 3-tier filter state for smart note: 'discard', 'review', 'keep'
-    const [filterStates, setFilterStates] = useState({});
+    const [filterStates, setFilterStates] = useState(initialState.filterStates);
+
+    useEffect(() => {
+        const stateToSave = { currentQIndex, selectedAnswers, submitted, filterStates };
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+    }, [currentQIndex, selectedAnswers, submitted, filterStates, storageKey]);
 
     const [customQuestions, setCustomQuestions] = useState([]);
 
