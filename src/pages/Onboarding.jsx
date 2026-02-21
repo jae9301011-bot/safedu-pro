@@ -25,8 +25,13 @@ export default function Onboarding() {
         const isAdvanced = profile.experience === '3+ years' || profile.certifications.length > 0;
 
         // In a real app we would save this to context/state management
-        localStorage.setItem('userTrack', isAdvanced ? 'fast-track' : 'basic-track');
-        localStorage.setItem('userProfile', JSON.stringify(profile));
+        const user = localStorage.getItem('currentUser') || 'default';
+        if (isAdvanced) {
+            localStorage.setItem(`${user}_userTrack`, 'fast-track');
+        } else {
+            localStorage.setItem(`${user}_userTrack`, 'basic-track');
+        }
+        localStorage.setItem(`${user}_userProfile`, JSON.stringify(profile));
 
         navigate('/dashboard');
     };

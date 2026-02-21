@@ -44,7 +44,8 @@ export default function MockExam() {
     const [customQuestions, setCustomQuestions] = useState([]);
 
     useEffect(() => {
-        const storedCustomMaterial = localStorage.getItem('customLearningMaterial');
+        const user = localStorage.getItem('currentUser') || 'default';
+        const storedCustomMaterial = localStorage.getItem(`${user}_customLearningMaterial`);
         if (storedCustomMaterial) {
             try {
                 const parsed = JSON.parse(storedCustomMaterial);

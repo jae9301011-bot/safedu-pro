@@ -8,7 +8,8 @@ const MOCK_SCENARIO = {
     frequency: '14회 중 11회 출제 (매우 중요)',
     question: '건설현장에서 시스템 비계 조립 시 준수해야 할 기준 및 안전 조치 사항 5가지를 설명하시오.',
     keywords: ['수직재', '수평재', '가새재', '밑받침철물', '벽이음', '침하 방지', '하중 한도', '작업발판'],
-    officialStandard: '산업안전보건기준에 관한 규칙 제69조 (시스템 비계의 구조) 등 관련 조항'
+    officialStandard: '산업안전보건기준에 관한 규칙 제69조 (시스템 비계의 구조) 등 관련 조항',
+    officialStandardDate: '[시행 2023. 11. 14.] 고용노동부령 제398호'
 };
 
 export default function EssayExam() {
@@ -113,6 +114,7 @@ export default function EssayExam() {
                             <div className="official-standard bg-mute p-4 rounded border-l-4">
                                 <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령)</h4>
                                 <p className="text-sm font-bold">{MOCK_SCENARIO.officialStandard}</p>
+                                <p className="text-xs text-danger font-bold mt-1">※ 기준 법령: {MOCK_SCENARIO.officialStandardDate}</p>
                                 <ul className="text-sm text-muted mt-2 list-disc pl-5">
                                     <li>수직재·수평재 및 가새재를 견고하게 연결하는 구조가 되도록 할 것</li>
                                     <li>비계 밑단의 수직재와 받침철물은 밀착되도록 설치하고, 수직재와 받침철물의 연결부의 겹침길이는 전체길이의 3분의 1 이상이 되도록 할 것</li>

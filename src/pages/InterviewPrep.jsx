@@ -8,7 +8,8 @@ const INTERVIEW_QUESTIONS = [
         id: 1,
         text: "건설현장에서 타워크레인 설치 및 해체 작업 시 발생할 수 있는 주요 재해 유형과 예방 대책(안전보건규칙)을 설명해 보세요.",
         keywords: ['붕괴', '추락', '낙하', '작업계획서', '신호수', '풍속', '작업지휘자'],
-        officialStandard: '산업안전보건기준에 관한 규칙 제142조 (타워크레인의 작업제한) 등 조항 기준'
+        officialStandard: '산업안전보건기준에 관한 규칙 제142조 (타워크레인의 작업제한) 등 조항 기준',
+        officialStandardDate: '[시행 2024. 1. 1.] 고용노동부령 제404호'
     }
 ];
 
@@ -169,6 +170,7 @@ export default function InterviewPrep() {
                         <div className="official-standard mt-6 bg-mute p-4 rounded border-l-4">
                             <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령)</h4>
                             <p className="text-sm font-bold">{question.officialStandard}</p>
+                            <p className="text-xs text-danger font-bold mt-1">※ 기준 법령: {question.officialStandardDate}</p>
                             <ul className="text-sm text-muted mt-2 list-disc pl-5">
                                 <li>순간풍속이 초당 10미터를 초과하는 경우 타워크레인의 설치·수리·점검 또는 해체 작업을 중지할 것</li>
                                 <li>조립·해체 시 근로자의 추락위험을 방지하기 위하여 작업계획서를 작성하고 준수할 것</li>

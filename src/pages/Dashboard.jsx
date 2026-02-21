@@ -17,10 +17,13 @@ export default function Dashboard() {
     const [track, setTrack] = useState('basic-track');
     const [isDragging, setIsDragging] = useState(false);
     const [uploadStatus, setUploadStatus] = useState(null); // { type: 'success' | 'error', message: string }
+    const [username, setUsername] = useState('수험생');
 
     useEffect(() => {
-        const savedUserTrack = localStorage.getItem('userTrack') || 'basic-track';
-        const savedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        const user = localStorage.getItem('currentUser') || '수험생';
+        setUsername(user);
+        const savedUserTrack = localStorage.getItem(`${user}_userTrack`) || 'basic-track';
+        const savedProfile = JSON.parse(localStorage.getItem(`${user}_userProfile`) || '{}');
         setTrack(savedUserTrack);
         setProfile(savedProfile);
     }, []);
@@ -85,7 +88,15 @@ export default function Dashboard() {
 
                 if (parsedData.length > 0) {
                     // Store custom data in localStorage to be accessed by MockExam / StudyNote
-                    localStorage.setItem('customLearningMaterial', JSON.stringify(parsedData));
+                    const user = localStorage.getItem('currentUser') || 'default';
+                    let existingCustom = [];
+                    try {
+                        const stored = localStorage.getItem(`${user}_customLearningMaterial`);
+                        if (stored) existingCustom = JSON.parse(stored);
+                    } catch (e) { }
+
+                    const newData = [...existingCustom, ...parsedData];
+                    localStorage.setItem(`${user}_customLearningMaterial`, JSON.stringify(newData));
                     setUploadStatus({ type: 'success', message: `성공! ${parsedData.length}개의 항목이 추가되었습니다.` });
 
                     setTimeout(() => setUploadStatus(null), 3000); // Clear after 3 seconds
@@ -120,7 +131,7 @@ export default function Dashboard() {
                 <div className="user-profile">
                     <UserCircle size={32} />
                     <div className="user-info">
-                        <span className="user-name">수험생님</span>
+                        <span className="user-name">{username}님</span>
                         <span className={`track-badge ${track}`}>{track === 'fast-track' ? '숙련자 코스' : '초심자 코스'}</span>
                     </div>
                 </div>
