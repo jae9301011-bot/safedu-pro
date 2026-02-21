@@ -8,7 +8,7 @@ import ESSAY_QUESTIONS_DATA from '../data/essay_questions.json';
 export default function EssayExam() {
     const navigate = useNavigate();
     const currentUser = localStorage.getItem('currentUser') || 'default';
-    const storageKey = `${currentUser} _essayExamState`;
+    const storageKey = `${currentUser}_essayExamState`;
 
     const getInitialState = () => {
         const saved = localStorage.getItem(storageKey);
@@ -29,13 +29,13 @@ export default function EssayExam() {
     const [feedback, setFeedback] = useState(null);
 
     useEffect(() => {
-        const storedCustomMaterial = localStorage.getItem(`${currentUser} _customEssayMaterial`);
+        const storedCustomMaterial = localStorage.getItem(`${currentUser}_customEssayMaterial`);
         let customQuestions = [];
         if (storedCustomMaterial) {
             try {
                 const parsed = JSON.parse(storedCustomMaterial);
                 customQuestions = parsed.map((item, index) => ({
-                    id: `custom_essay_${index} `,
+                    id: `custom_essay_${index}`,
                     subject: item.subject || '사용자 커스텀 논술',
                     frequency: item.frequency || '직접 업로드 문제',
                     question: item.question || item.text || '내용 없음',
@@ -197,7 +197,7 @@ export default function EssayExam() {
 
                             <div className="official-standard bg-mute p-4 rounded border-l-4">
                                 <h4 className="flex items-center gap-2 mb-2"><CheckCircle size={18} className="text-success" /> 정답 채점 기준 (관련 법령 등)</h4>
-                                <p className="text-sm font-bold whitespace-pre-wrap">{scenario.officialStandard}</p>
+                                <p className="text-sm font-bold" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{scenario.officialStandard}</p>
                                 {scenario.officialStandardDate && scenario.officialStandardDate !== '해당없음' && (
                                     <p className="text-xs text-danger font-bold mt-2">※ 기준 법령: {scenario.officialStandardDate}</p>
                                 )}

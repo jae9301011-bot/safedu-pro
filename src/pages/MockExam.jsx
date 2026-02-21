@@ -155,7 +155,9 @@ export default function MockExam() {
                             <div className="explanation">
                                 <h4>📝 정답 및 채점 완료</h4>
                                 <p className="mb-2"><strong>정답:</strong> {question.answer + 1}번</p>
-                                <p>{question.explanation || "이 문제에 대한 추가 해설 데이터가 존재하지 않습니다."}</p>
+                                <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, marginTop: '10px' }}>
+                                    {question.explanation || "이 문제에 대한 추가 해설 데이터가 존재하지 않습니다."}
+                                </p>
                             </div>
 
                             <div className="smart-filter-pad mt-4">
