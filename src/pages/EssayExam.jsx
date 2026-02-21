@@ -4,10 +4,10 @@ import { ArrowLeft, Edit3, CheckCircle, AlertTriangle } from 'lucide-react';
 import './EssayExam.css';
 
 const MOCK_SCENARIO = {
-    subject: '기계안전 전공필수',
-    frequency: '14회 중 12회 출제 (매우 중요)',
-    question: '산업용 로봇의 작동 중 발생할 수 있는 주요 위험 요인 3가지를 설명하고, 이에 대한 방호 장치 및 안전 조치 기준을 논하시오.',
-    keywords: ['협착', '충돌', '오작동', '안전매트', '광전자식 방호장치', '울타리', '비상정지장치', '안전플러그', '교시작업']
+    subject: '건설안전 전공필수',
+    frequency: '14회 중 11회 출제 (매우 중요)',
+    question: '건설현장에서 시스템 비계 조립 시 준수해야 할 기준 및 안전 조치 사항 5가지를 설명하시오.',
+    keywords: ['수직재', '수평재', '가새재', '밑받침철물', '벽이음', '침하 방지', '하중 한도', '작업발판']
 };
 
 export default function EssayExam() {
@@ -46,7 +46,7 @@ export default function EssayExam() {
             <header className="exam-header glass-panel">
                 <div className="exam-info">
                     <button className="back-btn" onClick={() => navigate('/dashboard')}><ArrowLeft /> 대시보드</button>
-                    <h2>2차 전공필수 (주관식 논술) 대비</h2>
+                    <h2>2차 전공필수 (건설안전 주관식 논술) 대비</h2>
                 </div>
                 <div className="exam-timer">지정 시간: 100분</div>
             </header>
@@ -106,7 +106,7 @@ export default function EssayExam() {
                         <div className="mt-8 pt-4 border-t">
                             <h4 className="mb-2">💡 AI 총평 가이드</h4>
                             <p className="text-muted text-sm bg-mute p-4 rounded">
-                                산업용 로봇의 위험 요인은 근로자와의 '협착' 및 '충돌'이 핵심입니다. 방호 장치로는 광전자식 방호장치와 방호울 등을 필수적으로 명시해야 하며, 수리 및 교시 작업 시에는 반드시 전원을 차단하고 '안전플러그'를 확보하는 안전 조치 기준(안전보건규칙)을 서술해야 감점을 피할 수 있습니다.
+                                시스템 비계 조립의 핵심은 구조적 안정성을 확보하기 위한 '수직재', '수평재', '가새재'의 견고한 연결과 지반의 '침하 방지' 조치(밑받침철물)입니다. 또한 건물과 고정하는 '벽이음'을 규정에 따라 설치하여 넘어짐을 방지하는 안전보건규칙 기준을 서술해야 합니다.
                             </p>
                             <button className="btn-secondary mt-4 w-full" onClick={() => { setIsGraded(false); setFeedback(null); }}>답안 수정하기</button>
                         </div>

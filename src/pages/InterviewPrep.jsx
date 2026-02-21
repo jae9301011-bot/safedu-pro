@@ -6,8 +6,8 @@ import './InterviewPrep.css';
 const INTERVIEW_QUESTIONS = [
     {
         id: 1,
-        text: "최근 중대재해처벌법 시행 이후 중요성이 커진 '위험성 평가'의 정의와 실시 시기에 대해 설명해 보세요.",
-        keywords: ['유해위험요인', '파악', '감소대책', '수립', '최초평가', '수시평가', '정기평가']
+        text: "건설현장에서 타워크레인 설치 및 해체 작업 시 발생할 수 있는 주요 재해 유형과 예방 대책(안전보건규칙)을 설명해 보세요.",
+        keywords: ['붕괴', '추락', '낙하', '작업계획서', '신호수', '풍속', '작업지휘자']
     }
 ];
 
@@ -101,7 +101,7 @@ export default function InterviewPrep() {
             <header className="exam-header glass-panel">
                 <div className="exam-info">
                     <button className="back-btn" onClick={() => navigate('/dashboard')}><ArrowLeft /> 대시보드</button>
-                    <h2>3차 면접시험 AI 시뮬레이터</h2>
+                    <h2>3차 면접시험 AI 시뮬레이터 (건설안전)</h2>
                 </div>
             </header>
 
@@ -166,7 +166,7 @@ export default function InterviewPrep() {
                         </div>
 
                         <p className="mt-6 text-sm text-muted bg-mute p-3 rounded">
-                            ※ 면접에서는 정확한 법적 용어 사용이 중요합니다. '유해위험요인', '수시평가' 등의 핵심 단어를 의식적으로 발음하는 연습을 권장합니다.
+                            ※ 건설 면접에서는 명확한 재해 유형(붕괴, 추락, 낙하 등)과 법적 관리 감독 절차(사전조사, 작업계획서 작성, 풍속 기준 준수 등)를 연관 지어 답변하는 것이 중요합니다.
                         </p>
                     </div>
                 )}
