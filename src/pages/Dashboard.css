@@ -196,6 +196,10 @@
     grid-column: span 4;
 }
 
+.upload-card {
+    grid-column: span 8;
+}
+
 .cbt-stats-card {
     grid-column: span 12;
 }
@@ -203,10 +207,71 @@
 @media (max-width: 1100px) {
 
     .ebbinghaus-card,
-    .action-card {
+    .action-card,
+    .upload-card {
         grid-column: span 12;
     }
 }
+
+/* Upload Card Styling */
+.drop-zone {
+    border: 2px dashed rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-md);
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background: rgba(0, 0, 0, 0.02);
+    margin-bottom: 1rem;
+}
+
+[data-theme='dark'] .drop-zone {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.drop-zone:hover,
+.drop-zone.dragging {
+    border-color: var(--color-primary);
+    background: rgba(79, 70, 229, 0.05);
+}
+
+.drop-zone .upload-icon {
+    color: var(--color-text-muted);
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.drop-zone:hover .upload-icon,
+.drop-zone.dragging .upload-icon {
+    color: var(--color-primary);
+    transform: translateY(-5px);
+}
+
+.upload-feedback {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.upload-feedback.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--color-success);
+}
+
+.upload-feedback.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+}
+
 
 .review-items {
     display: flex;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MockExam.css';
 import { ArrowLeft, Clock, CheckCircle, Trash2, Repeat, LayoutList } from 'lucide-react';
@@ -41,8 +41,32 @@ export default function MockExam() {
     // 3-tier filter state for smart note: 'discard', 'review', 'keep'
     const [filterStates, setFilterStates] = useState({});
 
-    const question = MOCK_QUESTIONS[currentQIndex];
-    const isLast = currentQIndex === MOCK_QUESTIONS.length - 1;
+    const [customQuestions, setCustomQuestions] = useState([]);
+
+    useEffect(() => {
+        const storedCustomMaterial = localStorage.getItem('customLearningMaterial');
+        if (storedCustomMaterial) {
+            try {
+                const parsed = JSON.parse(storedCustomMaterial);
+                // Ensure it has basic structure or adapt it
+                const adapted = parsed.map((item, index) => ({
+                    id: `custom_${index}`,
+                    subject: item.subject || '커스텀 문제',
+                    text: item.text || item.question || '내용 없음',
+                    options: item.options ? (Array.isArray(item.options) ? item.options : item.options.split('|')) : ['O', 'X', '보기없음', '보기없음'],
+                    answer: item.answer !== undefined ? parseInt(item.answer, 10) : 0,
+                    isCustom: true
+                }));
+                setCustomQuestions(adapted);
+            } catch (e) {
+                console.error("Error parsing custom materials", e);
+            }
+        }
+    }, []);
+
+    const allQuestions = [...MOCK_QUESTIONS, ...customQuestions];
+    const question = allQuestions[currentQIndex];
+    const isLast = currentQIndex === allQuestions.length - 1;
 
     const handleSelect = (idx) => {
         if (submitted) return;
@@ -81,14 +105,14 @@ export default function MockExam() {
             <main className="exam-main">
                 <div className="question-panel glass-panel">
                     <div className="q-meta">
-                        <span className="q-subject">{question.subject}</span>
-                        <span className="q-num">문제 {currentQIndex + 1} / {MOCK_QUESTIONS.length}</span>
+                        <span className="q-subject">{question?.subject} {question?.isCustom && '(사용자 추가)'}</span>
+                        <span className="q-num">문제 {currentQIndex + 1} / {allQuestions.length}</span>
                     </div>
 
-                    <h3 className="q-text">{question.text}</h3>
+                    <h3 className="q-text">{question?.text}</h3>
 
                     <div className="q-options">
-                        {question.options.map((opt, idx) => (
+                        {question?.options.map((opt, idx) => (
                             <button
                                 key={idx}
                                 className={`q-option ${selectedAnswers[question.id] === idx ? 'selected' : ''} ${submitted && question.answer === idx ? 'correct' : ''} ${submitted && selectedAnswers[question.id] === idx && question.answer !== idx ? 'wrong' : ''}`}
@@ -149,7 +173,7 @@ export default function MockExam() {
                 <aside className="omr-panel glass-panel">
                     <h3>답안 표기란</h3>
                     <div className="omr-grid">
-                        {MOCK_QUESTIONS.map((q, idx) => (
+                        {allQuestions.map((q, idx) => (
                             <div key={q.id} className="omr-row">
                                 <span className="omr-num">{idx + 1}</span>
                                 {[0, 1, 2, 3, 4].map(opt => (

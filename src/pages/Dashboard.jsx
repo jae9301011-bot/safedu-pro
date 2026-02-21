@@ -6,13 +6,17 @@ import {
     Target,
     BrainCircuit,
     AlertTriangle,
-    UserCircle
+    UserCircle,
+    UploadCloud,
+    FileCheck
 } from 'lucide-react';
 
 export default function Dashboard() {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [track, setTrack] = useState('basic-track');
+    const [isDragging, setIsDragging] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState(null); // { type: 'success' | 'error', message: string }
 
     useEffect(() => {
         const savedUserTrack = localStorage.getItem('userTrack') || 'basic-track';
@@ -22,6 +26,80 @@ export default function Dashboard() {
     }, []);
 
     const handleCBTNavigate = () => navigate('/exam/cbt');
+
+    // --- File Upload Handlers ---
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            processFile(file);
+        }
+    };
+
+    const handleFileInput = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            processFile(file);
+        }
+    };
+
+    const processFile = (file) => {
+        if (!file.name.endsWith('.json') && !file.name.endsWith('.csv')) {
+            setUploadStatus({ type: 'error', message: 'JSON 또는 CSV 파일만 업로드 가능합니다.' });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target.result;
+                let parsedData = [];
+
+                if (file.name.endsWith('.json')) {
+                    parsedData = JSON.parse(content);
+                } else if (file.name.endsWith('.csv')) {
+                    // Simple CSV parser for demo purposes
+                    const lines = content.split('\\n');
+                    const headers = lines[0].split(',');
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!lines[i].trim()) continue;
+                        const obj = {};
+                        const currentline = lines[i].split(',');
+                        for (let j = 0; j < headers.length; j++) {
+                            obj[headers[j].trim()] = currentline[j]?.trim();
+                        }
+                        parsedData.push(obj);
+                    }
+                }
+
+                if (parsedData.length > 0) {
+                    // Store custom data in localStorage to be accessed by MockExam / StudyNote
+                    localStorage.setItem('customLearningMaterial', JSON.stringify(parsedData));
+                    setUploadStatus({ type: 'success', message: `성공! ${parsedData.length}개의 항목이 추가되었습니다.` });
+
+                    setTimeout(() => setUploadStatus(null), 3000); // Clear after 3 seconds
+                } else {
+                    throw new Error("데이터가 비어있습니다.");
+                }
+
+            } catch (err) {
+                console.error("File parsing error:", err);
+                setUploadStatus({ type: 'error', message: '파일 파싱 실패. 형식을 확인해주세요.' });
+            }
+        };
+        reader.readAsText(file);
+    };
 
     return (
         <div className="dashboard-container">
@@ -127,6 +205,40 @@ export default function Dashboard() {
                                 </div>
                             </>
                         )}
+                    </section>
+
+                    {/* File Upload Widget */}
+                    <section className="dashboard-card upload-card fade-in" style={{ animationDelay: '0.25s' }}>
+                        <div className="card-header">
+                            <h3>📁 개인 자료 업로드 (JSON/CSV)</h3>
+                        </div>
+                        <div className="card-body">
+                            <div
+                                className={`drop-zone ${isDragging ? 'dragging' : ''}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                onClick={() => document.getElementById('file-upload').click()}
+                            >
+                                <UploadCloud size={40} className="upload-icon" />
+                                <p>파일을 여기로 드래그 하거나 클릭하여 업로드</p>
+                                <span className="text-sm var-text-muted">내 모의고사 기출문제 또는 최신 법령 데이터</span>
+                                <input
+                                    type="file"
+                                    id="file-upload"
+                                    accept=".json,.csv"
+                                    onChange={handleFileInput}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
+
+                            {uploadStatus && (
+                                <div className={`upload-feedback fade-in ${uploadStatus.type}`}>
+                                    {uploadStatus.type === 'success' ? <FileCheck size={16} /> : <AlertTriangle size={16} />}
+                                    <span>{uploadStatus.message}</span>
+                                </div>
+                            )}
+                        </div>
                     </section>
 
                     {/* Quick CBT Stats */}
